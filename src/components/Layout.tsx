@@ -12,9 +12,9 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     const location = useLocation();
 
     return (
-        <div className="flex h-screen bg-gray-50">
-            {/* Sidebar */}
-            <div className="w-64 bg-white border-r border-gray-200 flex flex-col">
+        <div className="flex h-dvh bg-gray-50 overflow-hidden">
+            {/* Desktop Sidebar */}
+            <div className="hidden md:flex w-64 bg-white border-r border-gray-200 flex-col">
                 <div className="p-6 border-b border-gray-200">
                     <h1 className="text-xl font-bold text-teal-600 flex items-center gap-2">
                         <MapPin className="w-6 h-6" />
@@ -49,11 +49,33 @@ export default function Layout({ children }: { children: React.ReactNode }) {
             </div>
 
             {/* Main Content */}
-            <main className="flex-1 overflow-auto">
-                <div className="p-8 max-w-7xl mx-auto">
+            <main className="flex-1 overflow-y-auto h-full w-full pb-20 md:pb-0">
+                <div className="p-4 md:p-8 max-w-7xl mx-auto">
                     {children}
                 </div>
             </main>
+
+            {/* Mobile Bottom Navigation */}
+            <div className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-50 pb-safe">
+                <nav className="flex justify-around items-center h-16">
+                    {navItems.map((item) => {
+                        const isActive = location.pathname === item.href;
+                        return (
+                            <Link
+                                key={item.name}
+                                to={item.href}
+                                className={clsx(
+                                    'flex flex-col items-center justify-center w-full h-full space-y-1',
+                                    isActive ? 'text-teal-600' : 'text-gray-500 hover:text-gray-900'
+                                )}
+                            >
+                                <item.icon className={clsx('w-6 h-6', isActive && 'fill-current')} />
+                                <span className="text-[10px] font-medium">{item.name}</span>
+                            </Link>
+                        );
+                    })}
+                </nav>
+            </div>
         </div>
     );
 }

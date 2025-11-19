@@ -4,10 +4,14 @@ import { Link } from 'react-router-dom';
 import { Plus, MapPin, Phone, ExternalLink } from 'lucide-react';
 import clsx from 'clsx';
 
-const statusColors = {
+import type { Clinic } from '../lib/db';
+
+const statusColors: Record<Clinic['status'], string> = {
     'To Contact': 'bg-gray-100 text-gray-800',
     'Contacted': 'bg-yellow-100 text-yellow-800',
     'Shadowing': 'bg-green-100 text-green-800',
+    'Dental Volunteering': 'bg-purple-100 text-purple-800',
+    'Non-Dental Volunteering': 'bg-orange-100 text-orange-800',
     'Rejected': 'bg-red-100 text-red-800',
 };
 

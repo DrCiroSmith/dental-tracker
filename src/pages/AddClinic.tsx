@@ -1,8 +1,10 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { db } from '../lib/db';
 import Map from '../components/Map';
-import { Search, Save, ArrowLeft } from 'lucide-react';
+import { Search, Save, ArrowLeft, MapPin } from 'lucide-react';
+
+const DORAL_COORDS: [number, number] = [25.8123, -80.3553]; // 5225 NW 85th Ave, Doral, FL approx
 
 export default function AddClinic() {
     const navigate = useNavigate();
@@ -15,8 +17,21 @@ export default function AddClinic() {
         status: 'To Contact' as const,
         notes: ''
     });
-    const [location, setLocation] = useState<[number, number]>([42.3601, -71.0589]); // Default Boston
+
+    // Initialize location from localStorage or default to Doral
+    const [location, setLocation] = useState<[number, number]>(() => {
+        const saved = localStorage.getItem('lastMapLocation');
+        return saved ? JSON.parse(saved) : DORAL_COORDS;
+    });
+
     const [searchQuery, setSearchQuery] = useState('');
+    const [nearbyClinics, setNearbyClinics] = useState<{ id: number, lat: number, lng: number, title: string }[]>([]);
+    const [isSearching, setIsSearching] = useState(false);
+
+    // Save location to localStorage whenever it changes
+    useEffect(() => {
+        localStorage.setItem('lastMapLocation', JSON.stringify(location));
+    }, [location]);
 
     const handleSearch = async () => {
         if (!searchQuery) return;
@@ -34,6 +49,42 @@ export default function AddClinic() {
         }
     };
 
+    const findNearbyClinics = async () => {
+        setIsSearching(true);
+        try {
+            // Overpass API query for dentists around current location (radius 5000m)
+            const query = `
+                [out:json];
+                (
+                    node["healthcare"="dentist"](around:5000,${location[0]},${location[1]});
+                    way["healthcare"="dentist"](around:5000,${location[0]},${location[1]});
+                    relation["healthcare"="dentist"](around:5000,${location[0]},${location[1]});
+                );
+                out center;
+            `;
+
+            const response = await fetch('https://overpass-api.de/api/interpreter', {
+                method: 'POST',
+                body: query
+            });
+
+            const data = await response.json();
+            const clinics = data.elements.map((el: any, index: number) => ({
+                id: index + 1000, // Offset ID to avoid conflict with selected location
+                lat: el.lat || el.center.lat,
+                lng: el.lon || el.center.lon,
+                title: el.tags.name || 'Unknown Dentist'
+            }));
+
+            setNearbyClinics(clinics);
+        } catch (error) {
+            console.error('Error fetching nearby clinics:', error);
+            alert('Failed to fetch nearby clinics. Please try again.');
+        } finally {
+            setIsSearching(false);
+        }
+    };
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         try {
@@ -47,6 +98,11 @@ export default function AddClinic() {
             console.error('Error saving clinic:', error);
         }
     };
+
+    const markers = [
+        { id: 0, lat: location[0], lng: location[1], title: 'Selected Location' },
+        ...nearbyClinics
+    ];
 
     return (
         <div className="space-y-6">
@@ -82,6 +138,8 @@ export default function AddClinic() {
                                 <option value="To Contact">To Contact</option>
                                 <option value="Contacted">Contacted</option>
                                 <option value="Shadowing">Shadowing</option>
+                                <option value="Dental Volunteering">Dental Volunteering</option>
+                                <option value="Non-Dental Volunteering">Non-Dental Volunteering</option>
                                 <option value="Rejected">Rejected</option>
                             </select>
                         </div>
@@ -174,12 +232,21 @@ export default function AddClinic() {
                         >
                             <Search className="w-4 h-4" />
                         </button>
+                        <button
+                            onClick={findNearbyClinics}
+                            disabled={isSearching}
+                            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-blue-300 flex items-center gap-2"
+                            title="Find dental clinics nearby"
+                        >
+                            <MapPin className="w-4 h-4" />
+                            {isSearching ? 'Searching...' : 'Nearby'}
+                        </button>
                     </div>
                     <div className="flex-1 relative">
                         <Map
                             center={location}
                             zoom={13}
-                            markers={[{ id: 0, lat: location[0], lng: location[1], title: 'Selected Location' }]}
+                            markers={markers}
                             onMapClick={(lat, lng) => setLocation([lat, lng])}
                         />
                     </div>

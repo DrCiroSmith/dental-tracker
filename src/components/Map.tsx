@@ -46,11 +46,18 @@ function MapEvents({ onClick }: { onClick?: (lat: number, lng: number) => void }
     return null;
 }
 
-export default function Map({ center = [42.3601, -71.0589], zoom = 13, markers = [], onMapClick }: MapProps) {
-    // Default center is Boston
+function ChangeView({ center, zoom }: { center: [number, number], zoom: number }) {
+    const map = useMap();
+    useEffect(() => {
+        map.setView(center, zoom);
+    }, [center, zoom, map]);
+    return null;
+}
 
+export default function Map({ center = [42.3601, -71.0589], zoom = 13, markers = [], onMapClick }: MapProps) {
     return (
         <MapContainer center={center} zoom={zoom} style={{ height: '100%', width: '100%' }} className="z-0">
+            <ChangeView center={center} zoom={zoom} />
             <TileLayer
                 attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
                 url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
