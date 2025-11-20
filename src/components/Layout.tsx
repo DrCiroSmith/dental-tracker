@@ -7,7 +7,7 @@ export default function Layout() {
         { to: "/", icon: LayoutDashboard, label: "Dashboard" },
         { to: "/clinics", icon: Building2, label: "Clinics" },
         { to: "/log-hours", icon: PlusCircle, label: "Log Hours" },
-        { to: "/logs", icon: FileClock, label: "Activity Logs" },
+        { to: "/activity-logs", icon: FileClock, label: "Activity Logs" },
         { to: "/admissions-guide", icon: GraduationCap, label: "Admissions Guide" },
         { to: "/settings", icon: Settings, label: "Settings" },
     ];

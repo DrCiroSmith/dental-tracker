@@ -97,7 +97,7 @@ export default function Clinics() {
                     </div>
 
                     <Link
-                        to="/add-clinic"
+                        to="/clinics/add"
                         className="flex items-center gap-2 px-4 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition-colors"
                     >
                         <Plus className="w-4 h-4" />
@@ -159,7 +159,7 @@ export default function Clinics() {
                             {/* Action Buttons */}
                             <div className="absolute top-4 right-4 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity bg-white/90 p-1 rounded-lg shadow-sm">
                                 <Link
-                                    to={`/add-clinic?id=${clinic.id}`}
+                                    to={`/clinics/add?id=${clinic.id}`}
                                     className="p-1.5 text-gray-500 hover:text-teal-600 hover:bg-teal-50 rounded-md transition-colors"
                                     title="Edit Clinic"
                                 >
@@ -179,7 +179,7 @@ export default function Clinics() {
                     {clinics.length === 0 && (
                         <div className="col-span-full text-center py-12 bg-gray-50 rounded-xl border-2 border-dashed border-gray-200">
                             <p className="text-gray-500">No clinics added yet.</p>
-                            <Link to="/add-clinic" className="text-teal-600 font-medium hover:underline mt-2 inline-block">
+                            <Link to="/clinics/add" className="text-teal-600 font-medium hover:underline mt-2 inline-block">
                                 Add your first clinic
                             </Link>
                         </div>
