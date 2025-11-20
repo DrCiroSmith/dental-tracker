@@ -137,6 +137,22 @@ function ProfileSettings() {
                         </span>
                     </div>
 
+                    <div className="mt-8 pt-6 border-t border-gray-200">
+                        <h3 className="text-sm font-medium text-red-800 mb-4">Danger Zone</h3>
+                        <button
+                            onClick={async () => {
+                                if (confirm('WARNING: This will delete ALL data (logs, clinics, profile) and reset the app. This action cannot be undone. Are you sure?')) {
+                                    await db.delete();
+                                    localStorage.clear();
+                                    window.location.reload();
+                                }
+                            }}
+                            className="w-full px-4 py-2 border border-red-200 text-red-600 rounded-lg text-sm font-medium hover:bg-red-50 transition-colors"
+                        >
+                            Factory Reset (Clear All Data)
+                        </button>
+                    </div>
+
                     <div className="mt-4 pt-4 border-t border-gray-100">
                         <button
                             onClick={handleLogout}
