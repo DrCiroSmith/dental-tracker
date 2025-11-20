@@ -1,37 +1,88 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { db } from '../lib/db';
-import { Save, Upload, Download } from 'lucide-react';
+import { Save, Upload, Download, Trash2 } from 'lucide-react';
 
 export default function LogHours() {
     const navigate = useNavigate();
+    const [searchParams] = useSearchParams();
+    const editId = searchParams.get('id');
+
     const clinics = useLiveQuery(() => db.clinics.toArray()) ?? [];
 
-    const [formData, setFormData] = useState({
+    const [formData, setFormData] = useState<{
+        date: string;
+        duration: string;
+        type: 'Shadowing' | 'Dental Volunteering' | 'Non-Dental Volunteering';
+        clinicId: string;
+        supervisor: string;
+        procedures: string;
+        notes: string;
+    }>({
         date: new Date().toISOString().split('T')[0],
         duration: '',
-        type: 'Shadowing' as const,
+        type: 'Shadowing',
         clinicId: '',
         supervisor: '',
         procedures: '',
         notes: ''
     });
     const [file, setFile] = useState<File | null>(null);
+    const [existingAttachmentName, setExistingAttachmentName] = useState<string | undefined>(undefined);
+
+    useEffect(() => {
+        if (editId) {
+            db.logs.get(Number(editId)).then(log => {
+                if (log) {
+                    setFormData({
+                        date: log.date,
+                        duration: log.duration.toString(),
+                        type: log.type,
+                        clinicId: log.clinicId?.toString() || '',
+                        supervisor: log.supervisor || '',
+                        procedures: log.procedures || '',
+                        notes: log.notes || ''
+                    });
+                    setExistingAttachmentName(log.attachmentName);
+                }
+            });
+        }
+    }, [editId]);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         try {
-            await db.logs.add({
+            const logData = {
                 ...formData,
                 clinicId: formData.clinicId ? Number(formData.clinicId) : undefined,
                 duration: Number(formData.duration),
-                attachment: file ? new Blob([file], { type: file.type }) : undefined,
-                attachmentName: file ? file.name : undefined
-            });
-            navigate('/');
+                // Only update attachment if a new file is selected, otherwise keep existing (handled by not overwriting if undefined in update, but Dexie replace needs full object or use update)
+            };
+
+            if (editId) {
+                await db.logs.update(Number(editId), {
+                    ...logData,
+                    ...(file ? { attachment: new Blob([file], { type: file.type }), attachmentName: file.name } : {})
+                });
+            } else {
+                await db.logs.add({
+                    ...logData,
+                    attachment: file ? new Blob([file], { type: file.type }) : undefined,
+                    attachmentName: file ? file.name : undefined
+                });
+            }
+            navigate('/logs');
         } catch (error) {
             console.error('Error saving log:', error);
+        }
+    };
+
+    const handleDelete = async () => {
+        if (!editId) return;
+        if (confirm('Are you sure you want to delete this log? This action cannot be undone.')) {
+            await db.logs.delete(Number(editId));
+            navigate('/logs');
         }
     };
 
@@ -75,14 +126,25 @@ export default function LogHours() {
     return (
         <div className="max-w-2xl mx-auto space-y-6">
             <div className="flex items-center justify-between">
-                <h2 className="text-2xl font-bold text-gray-900">Log Activity</h2>
-                <button
-                    onClick={handleExport}
-                    className="flex items-center gap-2 px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors"
-                >
-                    <Download className="w-4 h-4" />
-                    Export Logs
-                </button>
+                <h2 className="text-2xl font-bold text-gray-900">{editId ? 'Edit Log Entry' : 'Log Activity'}</h2>
+                <div className="flex gap-2">
+                    {editId && (
+                        <button
+                            onClick={handleDelete}
+                            className="flex items-center gap-2 px-4 py-2 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 transition-colors"
+                        >
+                            <Trash2 className="w-4 h-4" />
+                            Delete
+                        </button>
+                    )}
+                    <button
+                        onClick={handleExport}
+                        className="flex items-center gap-2 px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors"
+                    >
+                        <Download className="w-4 h-4" />
+                        Export Logs
+                    </button>
+                </div>
             </div>
 
             <form onSubmit={handleSubmit} className="bg-white p-6 rounded-xl shadow-sm border border-gray-200 space-y-6">
@@ -145,7 +207,7 @@ export default function LogHours() {
                 </div>
 
                 <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Supervisor Name</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Supervisor / Coordinator Name</label>
                     <div className="relative">
                         <input
                             type="text"
@@ -195,8 +257,10 @@ export default function LogHours() {
                             />
                         </label>
                     </div>
-                    {file && (
-                        <p className="mt-2 text-sm text-teal-600 font-medium">Selected: {file.name}</p>
+                    {(file || existingAttachmentName) && (
+                        <p className="mt-2 text-sm text-teal-600 font-medium">
+                            Current: {file ? file.name : existingAttachmentName}
+                        </p>
                     )}
                 </div>
 
@@ -205,7 +269,7 @@ export default function LogHours() {
                     className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition-colors font-medium text-lg"
                 >
                     <Save className="w-5 h-5" />
-                    Save Log Entry
+                    {editId ? 'Update Log Entry' : 'Save Log Entry'}
                 </button>
             </form>
         </div>

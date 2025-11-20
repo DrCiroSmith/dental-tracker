@@ -26,14 +26,29 @@ export interface Log {
     attachmentName?: string;
 }
 
+export interface Profile {
+    id?: number;
+    name: string;
+    email: string;
+    passwordHash: string; // Simple hash for local auth
+    targetHours: number; // Kept for backward compatibility/total
+    targetHoursShadowing: number;
+    targetHoursDental: number;
+    targetHoursNonDental: number;
+    role: 'primary_admin' | 'admin' | 'user';
+    subscriptionStatus: 'active' | 'inactive';
+}
+
 const db = new Dexie('DentalTrackerDB') as Dexie & {
     clinics: EntityTable<Clinic, 'id'>;
     logs: EntityTable<Log, 'id'>;
+    profile: EntityTable<Profile, 'id'>;
 };
 
 db.version(1).stores({
     clinics: '++id, name, status',
-    logs: '++id, clinicId, date, type'
+    logs: '++id, clinicId, date, type',
+    profile: '++id, email'
 });
 
 export { db };

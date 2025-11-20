@@ -1,20 +1,31 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { db } from '../lib/db';
 import Map from '../components/Map';
-import { Search, Save, ArrowLeft, MapPin } from 'lucide-react';
+import { Search, Save, ArrowLeft, MapPin, Trash2 } from 'lucide-react';
 
 const DORAL_COORDS: [number, number] = [25.8123, -80.3553]; // 5225 NW 85th Ave, Doral, FL approx
 
 export default function AddClinic() {
     const navigate = useNavigate();
-    const [formData, setFormData] = useState({
+    const [searchParams] = useSearchParams();
+    const editId = searchParams.get('id');
+
+    const [formData, setFormData] = useState<{
+        name: string;
+        address: string;
+        phone: string;
+        email: string;
+        website: string;
+        status: 'To Contact' | 'Contacted' | 'Shadowing' | 'Dental Volunteering' | 'Non-Dental Volunteering' | 'Rejected';
+        notes: string;
+    }>({
         name: '',
         address: '',
         phone: '',
         email: '',
         website: '',
-        status: 'To Contact' as const,
+        status: 'To Contact',
         notes: ''
     });
 
@@ -32,6 +43,26 @@ export default function AddClinic() {
     useEffect(() => {
         localStorage.setItem('lastMapLocation', JSON.stringify(location));
     }, [location]);
+
+    // Fetch existing clinic if editing
+    useEffect(() => {
+        if (editId) {
+            db.clinics.get(Number(editId)).then(clinic => {
+                if (clinic) {
+                    setFormData({
+                        name: clinic.name,
+                        address: clinic.address,
+                        phone: clinic.phone || '',
+                        email: clinic.email || '',
+                        website: clinic.website || '',
+                        status: clinic.status,
+                        notes: clinic.notes || ''
+                    });
+                    setLocation([clinic.lat, clinic.lng]);
+                }
+            });
+        }
+    }, [editId]);
 
     const handleSearch = async () => {
         if (!searchQuery) return;
@@ -88,14 +119,28 @@ export default function AddClinic() {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         try {
-            await db.clinics.add({
+            const clinicData = {
                 ...formData,
                 lat: location[0],
                 lng: location[1]
-            });
+            };
+
+            if (editId) {
+                await db.clinics.update(Number(editId), clinicData);
+            } else {
+                await db.clinics.add(clinicData);
+            }
             navigate('/clinics');
         } catch (error) {
             console.error('Error saving clinic:', error);
+        }
+    };
+
+    const handleDelete = async () => {
+        if (!editId) return;
+        if (confirm('Are you sure you want to delete this clinic? WARNING: This may orphan associated logs.')) {
+            await db.clinics.delete(Number(editId));
+            navigate('/clinics');
         }
     };
 
@@ -106,11 +151,22 @@ export default function AddClinic() {
 
     return (
         <div className="space-y-6">
-            <div className="flex items-center gap-4">
-                <button onClick={() => navigate('/clinics')} className="p-2 hover:bg-gray-100 rounded-full">
-                    <ArrowLeft className="w-5 h-5 text-gray-600" />
-                </button>
-                <h2 className="text-2xl font-bold text-gray-900">Add New Clinic</h2>
+            <div className="flex items-center justify-between">
+                <div className="flex items-center gap-4">
+                    <button onClick={() => navigate('/clinics')} className="p-2 hover:bg-gray-100 rounded-full">
+                        <ArrowLeft className="w-5 h-5 text-gray-600" />
+                    </button>
+                    <h2 className="text-2xl font-bold text-gray-900">{editId ? 'Edit Clinic' : 'Add New Clinic'}</h2>
+                </div>
+                {editId && (
+                    <button
+                        onClick={handleDelete}
+                        className="flex items-center gap-2 px-4 py-2 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 transition-colors"
+                    >
+                        <Trash2 className="w-4 h-4" />
+                        Delete
+                    </button>
+                )}
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
@@ -210,7 +266,7 @@ export default function AddClinic() {
                             className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition-colors font-medium"
                         >
                             <Save className="w-4 h-4" />
-                            Save Clinic
+                            {editId ? 'Update Clinic' : 'Save Clinic'}
                         </button>
                     </div>
                 </div>
