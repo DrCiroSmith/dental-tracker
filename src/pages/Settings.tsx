@@ -4,11 +4,12 @@ import { Download, Upload, AlertTriangle, CheckCircle2, User, CreditCard, Shield
 import { saveAs } from 'file-saver';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { useAuth } from '../context/AuthContext';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 
 function ProfileSettings() {
     const { logout } = useAuth();
     const navigate = useNavigate();
+    const location = useLocation();
     const profile = useLiveQuery(() => db.profile.toCollection().first());
     const [isEditing, setIsEditing] = useState(false);
     const [formData, setFormData] = useState({
@@ -28,6 +29,15 @@ function ProfileSettings() {
             });
         }
     }, [profile]);
+
+    useEffect(() => {
+        if (location.hash === '#subscription') {
+            const element = document.getElementById('subscription');
+            if (element) {
+                element.scrollIntoView({ behavior: 'smooth' });
+            }
+        }
+    }, [location]);
 
     const handleLogout = () => {
         logout();
@@ -117,7 +127,7 @@ function ProfileSettings() {
                         </div>
                     </div>
 
-                    <div className="mt-4 pt-4 border-t border-gray-100 flex items-center justify-between">
+                    <div id="subscription" className="mt-4 pt-4 border-t border-gray-100 flex items-center justify-between">
                         <div className="flex items-center gap-2">
                             <CreditCard className="w-4 h-4 text-gray-400" />
                             <span className="text-sm text-gray-600">Subscription Status:</span>

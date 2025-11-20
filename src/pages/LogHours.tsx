@@ -72,7 +72,7 @@ export default function LogHours() {
                     attachmentName: file ? file.name : undefined
                 });
             }
-            navigate('/logs');
+            navigate('/activity-logs');
         } catch (error) {
             console.error('Error saving log:', error);
         }
@@ -82,7 +82,7 @@ export default function LogHours() {
         if (!editId) return;
         if (confirm('Are you sure you want to delete this log? This action cannot be undone.')) {
             await db.logs.delete(Number(editId));
-            navigate('/logs');
+            navigate('/activity-logs');
         }
     };
 

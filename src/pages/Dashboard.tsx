@@ -153,7 +153,7 @@ export default function Dashboard() {
             target: stats.profile?.targetHoursShadowing || 100,
             icon: Users,
             color: 'bg-blue-50 text-blue-700',
-            link: '/logs?type=Shadowing'
+            link: '/activity-logs?type=Shadowing'
         },
         {
             title: 'Dental Volunteering',
@@ -161,7 +161,7 @@ export default function Dashboard() {
             target: stats.profile?.targetHoursDental || 100,
             icon: Heart,
             color: 'bg-purple-50 text-purple-700',
-            link: '/logs?type=Dental Volunteering'
+            link: '/activity-logs?type=Dental Volunteering'
         },
         {
             title: 'Non-Dental Volunteering',
@@ -169,7 +169,7 @@ export default function Dashboard() {
             target: stats.profile?.targetHoursNonDental || 150,
             icon: Building2,
             color: 'bg-orange-50 text-orange-700',
-            link: '/logs?type=Non-Dental Volunteering'
+            link: '/activity-logs?type=Non-Dental Volunteering'
         }
     ];
 
@@ -217,7 +217,7 @@ export default function Dashboard() {
                     <button
                         onClick={() => {
                             if (!isSubscribed) {
-                                navigate('/settings');
+                                navigate('/settings#subscription');
                                 return;
                             }
                             setChartView('monthly');
@@ -227,7 +227,7 @@ export default function Dashboard() {
                             chartView === 'monthly'
                                 ? "bg-teal-100 text-teal-700"
                                 : !isSubscribed
-                                    ? "bg-gray-50 text-gray-400 cursor-not-allowed border border-gray-200"
+                                    ? "bg-amber-100 text-amber-800 hover:bg-amber-200"
                                     : "bg-white text-gray-600 hover:bg-gray-50 border border-gray-200"
                         )}
                     >
@@ -237,7 +237,7 @@ export default function Dashboard() {
                     <button
                         onClick={() => {
                             if (!isSubscribed) {
-                                navigate('/settings');
+                                navigate('/settings#subscription');
                                 return;
                             }
                             setChartView('full');
@@ -247,7 +247,7 @@ export default function Dashboard() {
                             chartView === 'full'
                                 ? "bg-teal-100 text-teal-700"
                                 : !isSubscribed
-                                    ? "bg-gray-50 text-gray-400 cursor-not-allowed border border-gray-200"
+                                    ? "bg-amber-100 text-amber-800 hover:bg-amber-200"
                                     : "bg-white text-gray-600 hover:bg-gray-50 border border-gray-200"
                         )}
                     >

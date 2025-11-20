@@ -15,7 +15,7 @@ export default function ExportButton({ isSubscribed, hasLogs, onExport }: Export
         <button
             onClick={() => {
                 if (!isSubscribed) {
-                    navigate('/settings');
+                    navigate('/settings#subscription');
                     return;
                 }
                 onExport();
