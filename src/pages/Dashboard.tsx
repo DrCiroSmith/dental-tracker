@@ -71,12 +71,10 @@ export default function Dashboard() {
             chartTitle = `${monthName} Progress`;
             chartSubtitle = `1st - ${today.getDate()}th`;
 
-            const firstDay = new Date(today.getFullYear(), today.getMonth(), 1);
             const daysInMonthSoFar = today.getDate();
 
             const days = Array.from({ length: daysInMonthSoFar }, (_, i) => {
-                const d = new Date(firstDay);
-                d.setDate(firstDay.getDate() + i);
+                const d = new Date(today.getFullYear(), today.getMonth(), i + 1);
                 return d.toISOString().split('T')[0];
             });
 
