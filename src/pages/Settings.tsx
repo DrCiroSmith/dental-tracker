@@ -130,10 +130,23 @@ function ProfileSettings() {
                     <div id="subscription" className="mt-4 pt-4 border-t border-gray-100 flex items-center justify-between">
                         <div className="flex items-center gap-2">
                             <CreditCard className="w-4 h-4 text-gray-400" />
-                            <span className="text-sm text-gray-600">Subscription Status:</span>
+                            <span className="text-sm text-gray-600">Account Tier:</span>
                         </div>
-                        <span className={`px-2 py-1 rounded-full text-xs font-medium ${profile.subscriptionStatus === 'active' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'}`}>
-                            {profile.subscriptionStatus === 'active' ? 'Active Premium' : 'Free Plan'}
+                        <span className={`px-2 py-1 rounded-full text-xs font-medium ${profile.role === 'primary_admin'
+                                ? 'bg-purple-100 text-purple-800'
+                                : profile.role === 'admin'
+                                    ? 'bg-blue-100 text-blue-800'
+                                    : profile.subscriptionStatus === 'active'
+                                        ? 'bg-green-100 text-green-800'
+                                        : 'bg-gray-100 text-gray-800'
+                            }`}>
+                            {profile.role === 'primary_admin'
+                                ? 'Primary Admin'
+                                : profile.role === 'admin'
+                                    ? 'Admin'
+                                    : profile.subscriptionStatus === 'active'
+                                        ? 'Premium'
+                                        : 'Free Plan'}
                         </span>
                     </div>
 
