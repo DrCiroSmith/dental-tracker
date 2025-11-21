@@ -9,7 +9,7 @@ export interface Clinic {
     phone?: string;
     email?: string;
     website?: string;
-    status: 'To Contact' | 'Contacted' | 'Shadowing' | 'Dental Volunteering' | 'Non-Dental Volunteering' | 'Rejected';
+    status: 'To Contact' | 'Contacted' | 'Applied' | 'Interview Scheduled' | 'Accepted' | 'Waitlisted' | 'Rejected';
     notes?: string;
 }
 

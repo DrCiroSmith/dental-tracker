@@ -10,9 +10,10 @@ import Map from '../components/Map';
 const statusColors: Record<Clinic['status'], string> = {
     'To Contact': 'bg-gray-100 text-gray-800',
     'Contacted': 'bg-yellow-100 text-yellow-800',
-    'Shadowing': 'bg-green-100 text-green-800',
-    'Dental Volunteering': 'bg-purple-100 text-purple-800',
-    'Non-Dental Volunteering': 'bg-orange-100 text-orange-800',
+    'Applied': 'bg-blue-100 text-blue-800',
+    'Interview Scheduled': 'bg-indigo-100 text-indigo-800',
+    'Accepted': 'bg-green-100 text-green-800',
+    'Waitlisted': 'bg-orange-100 text-orange-800',
     'Rejected': 'bg-red-100 text-red-800',
 };
 
@@ -27,7 +28,7 @@ export default function Clinics() {
     const clinics = useLiveQuery(async () => {
         let allClinics = await db.clinics.toArray();
         if (filter === 'active') {
-            return allClinics.filter(c => ['Contacted', 'Shadowing', 'Dental Volunteering', 'Non-Dental Volunteering'].includes(c.status));
+            return allClinics.filter(c => ['Contacted', 'Applied', 'Interview Scheduled', 'Accepted', 'Waitlisted'].includes(c.status));
         }
         return allClinics;
     }, [filter]);

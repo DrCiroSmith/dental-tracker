@@ -153,12 +153,19 @@ export default function Register() {
                     ) : (
                         <div className="space-y-6">
                             {/* Mock Payment UI */}
-                            <div className="bg-blue-50 p-4 rounded-xl border border-blue-100">
-                                <div className="flex justify-between items-center mb-4">
-                                    <span className="font-semibold text-gray-900">Premium Subscription</span>
-                                    <span className="font-bold text-xl text-blue-600">$9.99<span className="text-sm font-normal text-gray-500">/mo</span></span>
+                            <div className="bg-blue-50 p-4 rounded-xl border border-blue-100 space-y-3">
+                                <div className="flex justify-between items-center">
+                                    <span className="font-semibold text-gray-900">Monthly Subscription</span>
+                                    <span className="font-bold text-xl text-blue-600">$6.99<span className="text-sm font-medium text-gray-500">/mo</span></span>
                                 </div>
-                                <ul className="space-y-2 text-sm text-blue-800">
+                                <div className="flex justify-between items-center pt-2 border-t border-blue-200">
+                                    <span className="font-semibold text-gray-900">Yearly Subscription</span>
+                                    <div className="text-right">
+                                        <span className="font-bold text-xl text-green-600">$59<span className="text-sm font-normal text-gray-500">/year</span></span>
+                                        <p className="text-xs text-green-700 font-medium">Save $24.88</p>
+                                    </div>
+                                </div>
+                                <ul className="space-y-2 text-sm text-blue-800 pt-2 border-t border-blue-200">
                                     <li className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4" /> Unlimited Activity Logs</li>
                                     <li className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4" /> Advanced Analytics</li>
                                     <li className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4" /> Cloud Backup (Coming Soon)</li>

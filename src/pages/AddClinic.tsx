@@ -17,7 +17,7 @@ export default function AddClinic() {
         phone: string;
         email: string;
         website: string;
-        status: 'To Contact' | 'Contacted' | 'Shadowing' | 'Dental Volunteering' | 'Non-Dental Volunteering' | 'Rejected';
+        status: 'To Contact' | 'Contacted' | 'Applied' | 'Interview Scheduled' | 'Accepted' | 'Waitlisted' | 'Rejected';
         notes: string;
     }>({
         name: '',
@@ -193,9 +193,10 @@ export default function AddClinic() {
                             >
                                 <option value="To Contact">To Contact</option>
                                 <option value="Contacted">Contacted</option>
-                                <option value="Shadowing">Shadowing</option>
-                                <option value="Dental Volunteering">Dental Volunteering</option>
-                                <option value="Non-Dental Volunteering">Non-Dental Volunteering</option>
+                                <option value="Applied">Applied</option>
+                                <option value="Interview Scheduled">Interview Scheduled</option>
+                                <option value="Accepted">Accepted</option>
+                                <option value="Waitlisted">Waitlisted</option>
                                 <option value="Rejected">Rejected</option>
                             </select>
                         </div>

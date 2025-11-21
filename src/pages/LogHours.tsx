@@ -169,6 +169,7 @@ export default function LogHours() {
                             <input
                                 type="number"
                                 step="0.5"
+                                min="0"
                                 required
                                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
                                 value={formData.duration}
