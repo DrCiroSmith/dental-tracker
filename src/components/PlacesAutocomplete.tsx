@@ -23,7 +23,6 @@ export default function PlacesAutocomplete({ onPlaceSelect, placeholder, classNa
 
         // Initialize Google Places Autocomplete
         autocompleteRef.current = new google.maps.places.Autocomplete(inputRef.current, {
-            types: ['establishment'],
             fields: ['name', 'formatted_address', 'geometry', 'formatted_phone_number', 'website', 'address_components']
         });
 

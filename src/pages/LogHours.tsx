@@ -63,10 +63,29 @@ export default function LogHours() {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         try {
+            const duration = Number(formData.duration);
+
+            // Validate 24h limit
+            const logsOnDate = await db.logs.where('date').equals(formData.date).toArray();
+            let totalDurationOnDate = logsOnDate.reduce((acc, log) => acc + log.duration, 0);
+
+            // If editing, subtract the old duration of this log from the total
+            if (editId) {
+                const currentLog = await db.logs.get(Number(editId));
+                if (currentLog) {
+                    totalDurationOnDate -= currentLog.duration;
+                }
+            }
+
+            if (totalDurationOnDate + duration > 24) {
+                alert(`Cannot log more than 24 hours for a single day. You already have ${totalDurationOnDate} hours logged for ${formData.date}.`);
+                return;
+            }
+
             const logData = {
                 ...formData,
                 clinicId: formData.clinicId ? Number(formData.clinicId) : undefined,
-                duration: Number(formData.duration),
+                duration: duration,
                 // Only update attachment if a new file is selected, otherwise keep existing (handled by not overwriting if undefined in update, but Dexie replace needs full object or use update)
             };
 

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { db } from '../lib/db';
 import { Link, useNavigate } from 'react-router-dom';
@@ -6,6 +6,7 @@ import { Building2, Users, Heart, ChevronRight, Filter, Calendar, BarChart3, Tre
 import clsx from 'clsx';
 import ProgressChart from '../components/ProgressChart';
 import { useAuth } from '../context/AuthContext';
+import CongratulationsModal from '../components/CongratulationsModal';
 
 type ChartView = 'weekly' | 'monthly' | 'full';
 
@@ -13,6 +14,8 @@ export default function Dashboard() {
     const { isSubscribed } = useAuth();
     const navigate = useNavigate();
     const [chartView, setChartView] = useState<ChartView>('weekly');
+    const [showCongrats, setShowCongrats] = useState(false);
+    const [congratsData, setCongratsData] = useState({ title: '', message: '' });
 
     const stats = useLiveQuery(async () => {
         const logs = await db.logs.toArray();
@@ -149,6 +152,36 @@ export default function Dashboard() {
         return { totalHours, progress, byType, activeClinics, totalClinics: clinics.length, chartData, chartTitle, chartSubtitle, profile };
     }, [chartView]);
 
+    useEffect(() => {
+        if (stats) {
+            const checkAchievement = (key: string, current: number, target: number, title: string, message: string) => {
+                if (current >= target && !localStorage.getItem(`achievement_${key}`)) {
+                    setCongratsData({ title, message });
+                    setShowCongrats(true);
+                    localStorage.setItem(`achievement_${key}`, 'true');
+
+                    // Simulate Email Notification
+                    console.log(`[EMAIL SIMULATION] Sending email to user: Achievement Unlocked - ${title}`);
+                    // We could also use a toast here, but the modal is the primary feedback
+                }
+            };
+
+            const shadowingHours = stats.byType['Shadowing'] || 0;
+            const dentalHours = stats.byType['Dental Volunteering'] || 0;
+            const nonDentalHours = stats.byType['Non-Dental Volunteering'] || 0;
+
+            const targetShadowing = stats.profile?.targetHoursShadowing || 100;
+            const targetDental = stats.profile?.targetHoursDental || 100;
+            const targetNonDental = stats.profile?.targetHoursNonDental || 150;
+            const totalTarget = targetShadowing + targetDental + targetNonDental;
+
+            checkAchievement('shadowing', shadowingHours, targetShadowing, 'Shadowing Target Met!', 'Congratulations! You have completed your shadowing hours target.');
+            checkAchievement('dental', dentalHours, targetDental, 'Dental Volunteering Met!', 'Great job! You have reached your dental volunteering goal.');
+            checkAchievement('non_dental', nonDentalHours, targetNonDental, 'Non-Dental Volunteering Met!', 'Awesome! You have fulfilled your non-dental volunteering requirement.');
+            checkAchievement('total', stats.totalHours, totalTarget, 'All Targets Completed!', 'Incredible! You have completed ALL your required hours. You are ready for application!');
+        }
+    }, [stats]);
+
     if (!stats) return null;
 
     const cards = [
@@ -180,6 +213,13 @@ export default function Dashboard() {
 
     return (
         <div className="space-y-8">
+            <CongratulationsModal
+                isOpen={showCongrats}
+                onClose={() => setShowCongrats(false)}
+                title={congratsData.title}
+                message={congratsData.message}
+            />
+
             {/* Header & Progress */}
             <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
@@ -192,7 +232,9 @@ export default function Dashboard() {
                         </p>
                     </div>
                     <div className="text-right">
-                        <div className="text-3xl font-bold text-teal-600">{stats.totalHours} <span className="text-lg text-gray-400 font-normal">/ {(stats.profile?.targetHoursShadowing || 100) + (stats.profile?.targetHoursDental || 100) + (stats.profile?.targetHoursNonDental || 150)} hrs</span></div>
+                        <div className={clsx("text-3xl font-bold", stats.totalHours >= ((stats.profile?.targetHoursShadowing || 100) + (stats.profile?.targetHoursDental || 100) + (stats.profile?.targetHoursNonDental || 150)) ? "text-green-600" : "text-teal-600")}>
+                            {stats.totalHours} <span className="text-lg text-gray-400 font-normal">/ {(stats.profile?.targetHoursShadowing || 100) + (stats.profile?.targetHoursDental || 100) + (stats.profile?.targetHoursNonDental || 150)} hrs</span>
+                        </div>
                         <div className="text-sm text-gray-500">Total Hours Logged</div>
                     </div>
                 </div>
@@ -200,7 +242,7 @@ export default function Dashboard() {
                 {/* Progress Bar */}
                 <div className="w-full bg-gray-100 rounded-full h-4 overflow-hidden">
                     <div
-                        className="bg-teal-500 h-full rounded-full transition-all duration-1000 ease-out"
+                        className={clsx("h-full rounded-full transition-all duration-1000 ease-out", stats.progress >= 100 ? "bg-green-500" : "bg-teal-500")}
                         style={{ width: `${stats.progress}%` }}
                     />
                 </div>
@@ -271,25 +313,31 @@ export default function Dashboard() {
 
             {/* Stats Grid */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                {cards.map((card) => (
-                    <Link
-                        key={card.title}
-                        to={card.link}
-                        className="bg-white p-6 rounded-xl shadow-sm border border-gray-200 hover:shadow-md transition-shadow group"
-                    >
-                        <div className="flex items-start justify-between mb-4">
-                            <div className={clsx("p-3 rounded-lg", card.color)}>
-                                <card.icon className="w-6 h-6" />
+                {cards.map((card) => {
+                    const isCompleted = card.hours >= card.target;
+                    return (
+                        <Link
+                            key={card.title}
+                            to={card.link}
+                            className={clsx(
+                                "p-6 rounded-xl shadow-sm border transition-shadow group",
+                                isCompleted ? "bg-green-50 border-green-200 hover:shadow-md" : "bg-white border-gray-200 hover:shadow-md"
+                            )}
+                        >
+                            <div className="flex items-start justify-between mb-4">
+                                <div className={clsx("p-3 rounded-lg", isCompleted ? "bg-green-100 text-green-700" : card.color)}>
+                                    <card.icon className="w-6 h-6" />
+                                </div>
+                                <ChevronRight className={clsx("w-5 h-5 transition-colors", isCompleted ? "text-green-400 group-hover:text-green-600" : "text-gray-300 group-hover:text-gray-500")} />
                             </div>
-                            <ChevronRight className="w-5 h-5 text-gray-300 group-hover:text-gray-500 transition-colors" />
-                        </div>
-                        <h3 className="text-gray-500 font-medium text-sm">{card.title}</h3>
-                        <div className="flex items-baseline gap-2 mt-1">
-                            <span className="text-2xl font-bold text-gray-900">{card.hours}</span>
-                            <span className="text-sm text-gray-400">/ {card.target} hrs</span>
-                        </div>
-                    </Link>
-                ))}
+                            <h3 className={clsx("font-medium text-sm", isCompleted ? "text-green-800" : "text-gray-500")}>{card.title}</h3>
+                            <div className="flex items-baseline gap-2 mt-1">
+                                <span className={clsx("text-2xl font-bold", isCompleted ? "text-green-900" : "text-gray-900")}>{card.hours}</span>
+                                <span className={clsx("text-sm", isCompleted ? "text-green-600" : "text-gray-400")}>/ {card.target} hrs</span>
+                            </div>
+                        </Link>
+                    );
+                })}
             </div>
 
             {/* Clinic Stats */}

@@ -155,6 +155,27 @@ export default function AddClinic() {
         ...nearbyClinics
     ];
 
+    const handleUseMyLocation = () => {
+        if (!navigator.geolocation) {
+            alert('Geolocation is not supported by your browser');
+            return;
+        }
+
+        setIsSearching(true);
+        navigator.geolocation.getCurrentPosition(
+            (position) => {
+                const { latitude, longitude } = position.coords;
+                setLocation([latitude, longitude]);
+                setIsSearching(false);
+            },
+            (error) => {
+                console.error('Error getting location:', error);
+                alert('Unable to retrieve your location');
+                setIsSearching(false);
+            }
+        );
+    };
+
     return (
         <div className="space-y-6">
             <div className="flex items-center justify-between">
@@ -277,18 +298,27 @@ export default function AddClinic() {
                         <div className="flex-1 relative">
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 mb-2">Search for Clinic or Location</label>
-                                <PlacesAutocomplete
-                                    onPlaceSelect={handlePlaceSelect}
-                                    placeholder="Search for a clinic (e.g., 'Doral Dental')..."
-                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
-                                />
+                                <div className="flex gap-2">
+                                    <PlacesAutocomplete
+                                        onPlaceSelect={handlePlaceSelect}
+                                        placeholder="Search for a clinic (e.g., 'Doral Dental')..."
+                                        className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
+                                    />
+                                    <button
+                                        onClick={handleUseMyLocation}
+                                        className="px-3 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors"
+                                        title="Use My Location"
+                                    >
+                                        <MapPin className="w-5 h-5" />
+                                    </button>
+                                </div>
                                 <p className="text-xs text-gray-500 mt-1">✨ Powered by Google - auto-fills name, address, phone, and website</p>
                             </div>
                         </div>
                         <button
                             onClick={findNearbyClinics}
                             disabled={isSearching}
-                            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-blue-300 flex items-center gap-2"
+                            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-blue-300 flex items-center gap-2 self-end mb-1"
                             title="Find dental clinics nearby"
                         >
                             <MapPin className="w-4 h-4" />
