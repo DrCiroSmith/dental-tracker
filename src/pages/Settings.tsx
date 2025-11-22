@@ -259,6 +259,9 @@ function AdminPanel() {
                 const existing = await db.profile.where('email').equals(user.email).first();
                 if (!existing) {
                     await db.profile.add(user);
+                } else {
+                    // Update password to ensure it's correct (fixes previously seeded broken users)
+                    await db.profile.update(existing.id!, { passwordHash: user.passwordHash });
                 }
             }
             alert('Test users created successfully! \n\nPasswords are "password" for all test accounts.');
