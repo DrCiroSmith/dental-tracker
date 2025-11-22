@@ -201,16 +201,16 @@ export default function LogHours() {
                 <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">Clinic / Organization</label>
                     <select
+                        required
                         className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
                         value={formData.clinicId}
                         onChange={e => setFormData({ ...formData, clinicId: e.target.value })}
                     >
-                        <option value="">Select a clinic (Optional)</option>
+                        <option value="">Select a clinic</option>
                         {clinics.map(clinic => (
                             <option key={clinic.id} value={clinic.id}>{clinic.name}</option>
                         ))}
                     </select>
-                    <p className="text-xs text-gray-500 mt-1">Leave empty for non-clinical volunteering.</p>
                 </div>
 
                 <div>
