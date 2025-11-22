@@ -47,7 +47,7 @@ export default function Register() {
     };
 
     return (
-        <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
+        <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center p-4 py-12 overflow-y-auto">
             <div className="max-w-md w-full bg-white rounded-2xl shadow-xl overflow-hidden">
                 {/* Progress Bar */}
                 <div className="bg-gray-100 h-1.5 w-full">
