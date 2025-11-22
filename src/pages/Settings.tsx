@@ -7,10 +7,15 @@ import { useAuth } from '../context/AuthContext';
 import { useNavigate, useLocation } from 'react-router-dom';
 
 function ProfileSettings() {
-    const { logout } = useAuth();
+    const { user, logout } = useAuth();
     const navigate = useNavigate();
     const location = useLocation();
-    const profile = useLiveQuery(() => db.profile.toCollection().first());
+    const profile = useLiveQuery(async () => {
+        if (user?.id) {
+            return await db.profile.get(user.id);
+        }
+        return undefined;
+    }, [user?.id]);
     const [isEditing, setIsEditing] = useState(false);
     const [formData, setFormData] = useState({
         name: '',

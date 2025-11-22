@@ -17,10 +17,12 @@ export default function Dashboard() {
     const [showCongrats, setShowCongrats] = useState(false);
     const [congratsData, setCongratsData] = useState({ title: '', message: '' });
 
+    const { user } = useAuth();
     const stats = useLiveQuery(async () => {
+        if (!user?.id) return null;
         const logs = await db.logs.toArray();
         const clinics = await db.clinics.toArray();
-        const profile = await db.profile.toCollection().first();
+        const profile = await db.profile.get(user.id);
 
         const totalHours = logs.reduce((acc, log) => acc + log.duration, 0);
 

@@ -36,9 +36,6 @@ export default function AddClinic() {
         return saved ? JSON.parse(saved) : DORAL_COORDS;
     });
 
-    const [nearbyClinics, setNearbyClinics] = useState<{ id: number, lat: number, lng: number, title: string }[]>([]);
-    const [isSearching, setIsSearching] = useState(false);
-
     // Save location to localStorage whenever it changes
     useEffect(() => {
         localStorage.setItem('lastMapLocation', JSON.stringify(location));
@@ -86,41 +83,7 @@ export default function AddClinic() {
         }));
     };
 
-    const findNearbyClinics = async () => {
-        setIsSearching(true);
-        try {
-            // Overpass API query for dentists around current location (radius 5000m)
-            const query = `
-                [out:json];
-                (
-                    node["healthcare"="dentist"](around:5000,${location[0]},${location[1]});
-                    way["healthcare"="dentist"](around:5000,${location[0]},${location[1]});
-                    relation["healthcare"="dentist"](around:5000,${location[0]},${location[1]});
-                );
-                out center;
-            `;
 
-            const response = await fetch('https://overpass-api.de/api/interpreter', {
-                method: 'POST',
-                body: query
-            });
-
-            const data = await response.json();
-            const clinics = data.elements.map((el: any, index: number) => ({
-                id: index + 1000, // Offset ID to avoid conflict with selected location
-                lat: el.lat || el.center.lat,
-                lng: el.lon || el.center.lon,
-                title: el.tags.name || 'Unknown Dentist'
-            }));
-
-            setNearbyClinics(clinics);
-        } catch (error) {
-            console.error('Error fetching nearby clinics:', error);
-            alert('Failed to fetch nearby clinics. Please try again.');
-        } finally {
-            setIsSearching(false);
-        }
-    };
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -151,8 +114,7 @@ export default function AddClinic() {
     };
 
     const markers = [
-        { id: 0, lat: location[0], lng: location[1], title: 'Selected Location' },
-        ...nearbyClinics
+        { id: 0, lat: location[0], lng: location[1], title: 'Selected Location' }
     ];
 
     const handleUseMyLocation = () => {
@@ -161,17 +123,14 @@ export default function AddClinic() {
             return;
         }
 
-        setIsSearching(true);
         navigator.geolocation.getCurrentPosition(
             (position) => {
                 const { latitude, longitude } = position.coords;
                 setLocation([latitude, longitude]);
-                setIsSearching(false);
             },
             (error) => {
                 console.error('Error getting location:', error);
                 alert('Unable to retrieve your location');
-                setIsSearching(false);
             }
         );
     };
@@ -315,15 +274,6 @@ export default function AddClinic() {
                                 <p className="text-xs text-gray-500 mt-1">✨ Powered by Google - auto-fills name, address, phone, and website</p>
                             </div>
                         </div>
-                        <button
-                            onClick={findNearbyClinics}
-                            disabled={isSearching}
-                            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-blue-300 flex items-center gap-2 self-end mb-1"
-                            title="Find dental clinics nearby"
-                        >
-                            <MapPin className="w-4 h-4" />
-                            {isSearching ? 'Searching...' : 'Nearby'}
-                        </button>
                     </div>
                     <div className="flex-1 relative">
                         <Map
