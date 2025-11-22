@@ -13,6 +13,7 @@ export default function ExportButton({ isSubscribed, hasLogs, onExport }: Export
 
     return (
         <button
+            type="button"
             onClick={() => {
                 if (!isSubscribed) {
                     navigate('/settings#subscription');
@@ -20,7 +21,9 @@ export default function ExportButton({ isSubscribed, hasLogs, onExport }: Export
                 }
                 onExport();
             }}
-            disabled={!hasLogs}
+            // Only disable if subscribed AND no logs. 
+            // If not subscribed, always allow click to show upsell (redirect).
+            disabled={isSubscribed && !hasLogs}
             className={clsx(
                 "flex items-center gap-2 px-4 py-2 rounded-lg transition-colors shrink-0",
                 !isSubscribed
