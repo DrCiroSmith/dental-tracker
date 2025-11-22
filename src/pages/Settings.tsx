@@ -222,7 +222,7 @@ function AdminPanel() {
             {
                 name: 'Test Admin',
                 email: 'admin_test@example.com',
-                passwordHash: 'password', // Simple hash for testing
+                passwordHash: btoa('password'), // Match Login.tsx hashing
                 targetHoursShadowing: 100,
                 targetHoursDental: 100,
                 targetHoursNonDental: 150,
@@ -233,7 +233,7 @@ function AdminPanel() {
             {
                 name: 'Premium User',
                 email: 'premium_user@example.com',
-                passwordHash: 'password',
+                passwordHash: btoa('password'),
                 targetHoursShadowing: 100,
                 targetHoursDental: 100,
                 targetHoursNonDental: 150,
@@ -244,7 +244,7 @@ function AdminPanel() {
             {
                 name: 'Free User',
                 email: 'free_user@example.com',
-                passwordHash: 'password',
+                passwordHash: btoa('password'),
                 targetHoursShadowing: 100,
                 targetHoursDental: 100,
                 targetHoursNonDental: 150,
