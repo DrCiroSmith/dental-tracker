@@ -17,8 +17,10 @@ export default function Layout() {
             {/* Desktop Sidebar */}
             <aside className="hidden md:flex flex-col w-64 bg-white border-r border-gray-200 h-full shrink-0">
                 <div className="p-6 border-b border-gray-200">
-                    <h1 className="text-xl font-bold text-teal-700">Dental Tracker</h1>
-                    <p className="text-xs text-gray-500 mt-1">Shadowing & Volunteering</p>
+                    <NavLink to="/" className="block hover:opacity-80 transition-opacity">
+                        <h1 className="text-xl font-bold text-teal-700">Dental Tracker</h1>
+                        <p className="text-xs text-gray-500 mt-1">Shadowing & Volunteering</p>
+                    </NavLink>
                 </div>
                 <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
                     {navItems.map((item) => (
@@ -43,7 +45,9 @@ export default function Layout() {
             <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
                 {/* Mobile Header */}
                 <header className="md:hidden bg-white border-b border-gray-200 p-4 shrink-0 z-10">
-                    <h1 className="text-lg font-bold text-teal-700">Dental Tracker</h1>
+                    <NavLink to="/" className="block hover:opacity-80 transition-opacity">
+                        <h1 className="text-lg font-bold text-teal-700">Dental Tracker</h1>
+                    </NavLink>
                 </header>
 
                 {/* Main Content */}
