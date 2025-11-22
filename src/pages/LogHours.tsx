@@ -2,7 +2,8 @@ import { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { db } from '../lib/db';
-import { Save, Upload, Download, Trash2 } from 'lucide-react';
+import { Save, Upload, Download, Trash2, PenTool } from 'lucide-react';
+import SignaturePad from '../components/SignaturePad';
 
 export default function LogHours() {
     const navigate = useNavigate();
@@ -30,6 +31,8 @@ export default function LogHours() {
     });
     const [file, setFile] = useState<File | null>(null);
     const [existingAttachmentName, setExistingAttachmentName] = useState<string | undefined>(undefined);
+    const [showSignaturePad, setShowSignaturePad] = useState(false);
+    const [signature, setSignature] = useState<string | null>(null);
 
     useEffect(() => {
         if (editId) {
@@ -45,6 +48,7 @@ export default function LogHours() {
                         notes: log.notes || ''
                     });
                     setExistingAttachmentName(log.attachmentName);
+                    setSignature(log.supervisorSignature || null);
                 }
             });
         }
@@ -63,11 +67,13 @@ export default function LogHours() {
             if (editId) {
                 await db.logs.update(Number(editId), {
                     ...logData,
+                    supervisorSignature: signature || undefined,
                     ...(file ? { attachment: new Blob([file], { type: file.type }), attachmentName: file.name } : {})
                 });
             } else {
                 await db.logs.add({
                     ...logData,
+                    supervisorSignature: signature || undefined,
                     attachment: file ? new Blob([file], { type: file.type }) : undefined,
                     attachmentName: file ? file.name : undefined
                 });
@@ -265,6 +271,34 @@ export default function LogHours() {
                     )}
                 </div>
 
+                <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Supervisor Signature</label>
+                    {signature ? (
+                        <div className="space-y-2">
+                            <div className="border-2 border-gray-200 rounded-lg p-4 bg-gray-50">
+                                <img src={signature} alt="Supervisor Signature" className="max-h-32 mx-auto" />
+                            </div>
+                            <button
+                                type="button"
+                                onClick={() => setSignature(null)}
+                                className="w-full px-4 py-2 border border-red-300 text-red-700 rounded-lg hover:bg-red-50 transition-colors text-sm"
+                            >
+                                Remove Signature
+                            </button>
+                        </div>
+                    ) : (
+                        <button
+                            type="button"
+                            onClick={() => setShowSignaturePad(true)}
+                            className="w-full flex items-center justify-center gap-2 px-4 py-3 border-2 border-dashed border-gray-300 text-gray-600 rounded-lg hover:bg-gray-50 transition-colors"
+                        >
+                            <PenTool className="w-5 h-5" />
+                            Request Supervisor Signature
+                        </button>
+                    )}
+                    <p className="text-xs text-gray-500 mt-1">Optional: Ask your supervisor to sign to verify the hours logged.</p>
+                </div>
+
                 <button
                     type="submit"
                     className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition-colors font-medium text-lg"
@@ -273,6 +307,16 @@ export default function LogHours() {
                     {editId ? 'Update Log Entry' : 'Save Log Entry'}
                 </button>
             </form>
+
+            {showSignaturePad && (
+                <SignaturePad
+                    onSave={(sig) => {
+                        setSignature(sig);
+                        setShowSignaturePad(false);
+                    }}
+                    onCancel={() => setShowSignaturePad(false)}
+                />
+            )}
         </div>
     );
 }

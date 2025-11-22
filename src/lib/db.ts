@@ -20,6 +20,7 @@ export interface Log {
     duration: number; // in hours
     type: 'Shadowing' | 'Dental Volunteering' | 'Non-Dental Volunteering';
     supervisor?: string;
+    supervisorSignature?: string; // Base64 encoded signature image
     procedures?: string;
     notes?: string;
     attachment?: Blob; // For invoices/signatures

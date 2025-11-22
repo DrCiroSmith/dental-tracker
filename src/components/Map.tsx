@@ -1,20 +1,5 @@
-import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
-import { useEffect } from 'react';
-import 'leaflet/dist/leaflet.css';
-import L from 'leaflet';
-
-// Fix for default marker icon in React Leaflet
-import icon from 'leaflet/dist/images/marker-icon.png';
-import iconShadow from 'leaflet/dist/images/marker-shadow.png';
-
-let DefaultIcon = L.icon({
-    iconUrl: icon,
-    shadowUrl: iconShadow,
-    iconSize: [25, 41],
-    iconAnchor: [12, 41]
-});
-
-L.Marker.prototype.options.icon = DefaultIcon;
+import { useLoadScript } from '@react-google-maps/api';
+import GoogleMapComponent from './GoogleMapComponent';
 
 interface MapProps {
     center?: [number, number];
@@ -24,52 +9,61 @@ interface MapProps {
         lat: number;
         lng: number;
         title: string;
+        color?: 'blue' | 'red' | 'green' | 'orange' | 'yellow' | 'violet' | 'grey' | 'black';
     }[];
     onMapClick?: (lat: number, lng: number) => void;
 }
 
-function MapEvents({ onClick }: { onClick?: (lat: number, lng: number) => void }) {
-    const map = useMap();
+const libraries: ("places" | "geometry" | "drawing" | "visualization")[] = ["places"];
 
-    useEffect(() => {
-        if (!onClick) return;
+export default function Map({ center, zoom = 13, markers = [], onMapClick }: MapProps) {
+    const { isLoaded, loadError } = useLoadScript({
+        googleMapsApiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY || '',
+        libraries
+    });
 
-        map.on('click', (e) => {
-            onClick(e.latlng.lat, e.latlng.lng);
-        });
+    const defaultCenter = { lat: 42.3601, lng: -71.0589 }; // Boston default
+    const mapCenter = center ? { lat: center[0], lng: center[1] } : defaultCenter;
 
-        return () => {
-            map.off('click');
-        };
-    }, [map, onClick]);
+    const handleClick = (e: google.maps.MapMouseEvent) => {
+        if (onMapClick && e.latLng) {
+            onMapClick(e.latLng.lat(), e.latLng.lng());
+        }
+    };
 
-    return null;
-}
+    // Log errors to console for debugging
+    if (loadError) {
+        console.error('Google Maps load error:', loadError);
+    }
 
-function ChangeView({ center, zoom }: { center: [number, number], zoom: number }) {
-    const map = useMap();
-    useEffect(() => {
-        map.setView(center, zoom);
-    }, [center, zoom, map]);
-    return null;
-}
+    // Log API key status (first few characters only for security)
+    const apiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
+    console.log('Google Maps API Key status:', apiKey ? `Configured (${apiKey.substring(0, 10)}...)` : 'NOT CONFIGURED');
 
-export default function Map({ center = [42.3601, -71.0589], zoom = 13, markers = [], onMapClick }: MapProps) {
+    if (loadError) {
+        return (
+            <div className="w-full h-full flex flex-col items-center justify-center bg-gray-100 rounded-lg p-4">
+                <p className="text-red-600 font-semibold">Error loading Google Maps</p>
+                <p className="text-sm text-gray-600 mt-2">{loadError.message}</p>
+                <p className="text-xs text-gray-500 mt-1">Check browser console for details</p>
+            </div>
+        );
+    }
+
+    if (!isLoaded) {
+        return (
+            <div className="w-full h-full flex items-center justify-center bg-gray-100 rounded-lg">
+                <p className="text-gray-600">Loading map...</p>
+            </div>
+        );
+    }
+
     return (
-        <MapContainer center={center} zoom={zoom} style={{ height: '100%', width: '100%' }} className="z-0">
-            <ChangeView center={center} zoom={zoom} />
-            <TileLayer
-                attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-            />
-            {markers.map((marker) => (
-                <Marker key={marker.id} position={[marker.lat, marker.lng]}>
-                    <Popup>
-                        {marker.title}
-                    </Popup>
-                </Marker>
-            ))}
-            <MapEvents onClick={onMapClick} />
-        </MapContainer>
+        <GoogleMapComponent
+            center={mapCenter}
+            zoom={zoom}
+            markers={markers}
+            onClick={handleClick}
+        />
     );
 }

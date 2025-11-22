@@ -133,12 +133,12 @@ function ProfileSettings() {
                             <span className="text-sm text-gray-600">Account Tier:</span>
                         </div>
                         <span className={`px-2 py-1 rounded-full text-xs font-medium ${profile.role === 'primary_admin'
-                                ? 'bg-purple-100 text-purple-800'
-                                : profile.role === 'admin'
-                                    ? 'bg-blue-100 text-blue-800'
-                                    : profile.subscriptionStatus === 'active'
-                                        ? 'bg-green-100 text-green-800'
-                                        : 'bg-gray-100 text-gray-800'
+                            ? 'bg-purple-100 text-purple-800'
+                            : profile.role === 'admin'
+                                ? 'bg-blue-100 text-blue-800'
+                                : profile.subscriptionStatus === 'active'
+                                    ? 'bg-green-100 text-green-800'
+                                    : 'bg-gray-100 text-gray-800'
                             }`}>
                             {profile.role === 'primary_admin'
                                 ? 'Primary Admin'
@@ -214,6 +214,60 @@ function AdminPanel() {
         await db.profile.delete(targetUser.id!);
     };
 
+    const seedTestUsers = async () => {
+        if (!isPrimaryAdmin) return;
+        if (!confirm('This will create test users (Admin, Premium User, Free User). Continue?')) return;
+
+        const testUsers: Omit<Profile, 'id'>[] = [
+            {
+                name: 'Test Admin',
+                email: 'admin_test@example.com',
+                passwordHash: 'password', // Simple hash for testing
+                targetHoursShadowing: 100,
+                targetHoursDental: 100,
+                targetHoursNonDental: 150,
+                targetHours: 350,
+                role: 'admin',
+                subscriptionStatus: 'active'
+            },
+            {
+                name: 'Premium User',
+                email: 'premium_user@example.com',
+                passwordHash: 'password',
+                targetHoursShadowing: 100,
+                targetHoursDental: 100,
+                targetHoursNonDental: 150,
+                targetHours: 350,
+                role: 'user',
+                subscriptionStatus: 'active'
+            },
+            {
+                name: 'Free User',
+                email: 'free_user@example.com',
+                passwordHash: 'password',
+                targetHoursShadowing: 100,
+                targetHoursDental: 100,
+                targetHoursNonDental: 150,
+                targetHours: 350,
+                role: 'user',
+                subscriptionStatus: 'inactive'
+            }
+        ];
+
+        try {
+            for (const user of testUsers) {
+                const existing = await db.profile.where('email').equals(user.email).first();
+                if (!existing) {
+                    await db.profile.add(user);
+                }
+            }
+            alert('Test users created successfully! \n\nPasswords are "password" for all test accounts.');
+        } catch (error) {
+            console.error('Failed to seed users:', error);
+            alert('Failed to create test users.');
+        }
+    };
+
     if (!users) return null;
 
     return (
@@ -223,8 +277,20 @@ function AdminPanel() {
                     <Shield className="w-6 h-6 text-purple-600" />
                 </div>
                 <div className="flex-1">
-                    <h2 className="text-lg font-semibold text-gray-900">Admin Panel</h2>
-                    <p className="text-gray-500 text-sm mt-1">Manage users and permissions.</p>
+                    <div className="flex justify-between items-start">
+                        <div>
+                            <h2 className="text-lg font-semibold text-gray-900">Admin Panel</h2>
+                            <p className="text-gray-500 text-sm mt-1">Manage users and permissions.</p>
+                        </div>
+                        {isPrimaryAdmin && (
+                            <button
+                                onClick={seedTestUsers}
+                                className="text-sm text-purple-600 font-medium hover:underline"
+                            >
+                                Seed Test Users
+                            </button>
+                        )}
+                    </div>
 
                     <div className="mt-4 overflow-x-auto">
                         <table className="w-full text-left text-sm">

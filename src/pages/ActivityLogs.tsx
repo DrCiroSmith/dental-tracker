@@ -10,6 +10,8 @@ import LogFilters from '../components/LogFilters';
 import ExportButton from '../components/ExportButton';
 import LogTable from '../components/LogTable';
 
+import { formatDate } from '../lib/formatDate';
+
 export default function ActivityLogs() {
     const { isSubscribed } = useAuth();
     const [searchParams, setSearchParams] = useSearchParams();
@@ -84,7 +86,7 @@ export default function ActivityLogs() {
             }
 
             const row = [
-                log.date,
+                formatDate(log.date),
                 log.type,
                 `"${(log.clinicName || '').replace(/"/g, '""')}"`,
                 log.duration,

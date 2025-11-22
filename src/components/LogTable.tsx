@@ -1,6 +1,8 @@
 import { Link } from 'react-router-dom';
-import { FileText, Pencil, Trash2, ClipboardList } from 'lucide-react';
+import { FileText, Pencil, Trash2, ClipboardList, CheckCircle2 } from 'lucide-react';
 import clsx from 'clsx';
+
+import { formatDate } from '../lib/formatDate';
 
 interface Log {
     id: number;
@@ -9,6 +11,7 @@ interface Log {
     type: string;
     duration: number;
     supervisor?: string;
+    supervisorSignature?: string;
     attachment?: Blob;
     attachmentName?: string;
 }
@@ -43,6 +46,7 @@ export default function LogTable({ logs, onDelete }: LogTableProps) {
                         <th className="px-6 py-3 font-medium text-gray-500">Type</th>
                         <th className="px-6 py-3 font-medium text-gray-500">Duration</th>
                         <th className="px-6 py-3 font-medium text-gray-500">Supervisor</th>
+                        <th className="px-6 py-3 font-medium text-gray-500">Signature</th>
                         <th className="px-6 py-3 font-medium text-gray-500">Attachment</th>
                         <th className="px-6 py-3 font-medium text-gray-500 text-right">Actions</th>
                     </tr>
@@ -50,7 +54,7 @@ export default function LogTable({ logs, onDelete }: LogTableProps) {
                 <tbody className="divide-y divide-gray-200">
                     {logs.map(log => (
                         <tr key={log.id} className="hover:bg-gray-50 transition-colors">
-                            <td className="px-6 py-4 whitespace-nowrap text-gray-900">{log.date}</td>
+                            <td className="px-6 py-4 whitespace-nowrap text-gray-900">{formatDate(log.date)}</td>
                             <td className="px-6 py-4 text-gray-900">{log.clinicName}</td>
                             <td className="px-6 py-4">
                                 <span className={clsx(
@@ -64,6 +68,16 @@ export default function LogTable({ logs, onDelete }: LogTableProps) {
                             </td>
                             <td className="px-6 py-4 text-gray-900">{log.duration} hrs</td>
                             <td className="px-6 py-4 text-gray-500">{log.supervisor || '-'}</td>
+                            <td className="px-6 py-4">
+                                {log.supervisorSignature ? (
+                                    <span className="flex items-center gap-1 text-green-600">
+                                        <CheckCircle2 className="w-4 h-4" />
+                                        <span className="text-xs">Verified</span>
+                                    </span>
+                                ) : (
+                                    <span className="text-gray-400">-</span>
+                                )}
+                            </td>
                             <td className="px-6 py-4">
                                 {log.attachment ? (
                                     <span className="flex items-center gap-1 text-teal-600">

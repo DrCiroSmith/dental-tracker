@@ -2,16 +2,14 @@ import { useState } from 'react';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { db } from '../lib/db';
 import { Link, useSearchParams, useLocation } from 'react-router-dom';
-import { Plus, MapPin, Phone, ExternalLink, Filter, Pencil, Trash2, List, Map as MapIcon } from 'lucide-react';
+import { MapPin, Phone, Plus, Filter, List, Map as MapIcon, Pencil, Trash2, ExternalLink } from 'lucide-react';
 import clsx from 'clsx';
-import type { Clinic } from '../lib/db';
 import Map from '../components/Map';
 
-const statusColors: Record<Clinic['status'], string> = {
-    'To Contact': 'bg-gray-100 text-gray-800',
-    'Contacted': 'bg-yellow-100 text-yellow-800',
-    'Applied': 'bg-blue-100 text-blue-800',
-    'Interview Scheduled': 'bg-indigo-100 text-indigo-800',
+const statusColors: Record<string, string> = {
+    'Contacted': 'bg-blue-100 text-blue-800',
+    'Applied': 'bg-purple-100 text-purple-800',
+    'Interview Scheduled': 'bg-yellow-100 text-yellow-800',
     'Accepted': 'bg-green-100 text-green-800',
     'Waitlisted': 'bg-orange-100 text-orange-800',
     'Rejected': 'bg-red-100 text-red-800',
@@ -107,85 +105,75 @@ export default function Clinics() {
                 </div>
             </div>
 
-            {/* Content Area */}
-            <div className="flex-1 min-h-0">
-                {/* Mobile Map View */}
-                <div className={clsx("h-full md:hidden", viewMode === 'map' ? "block" : "hidden")}>
-                    <div className="h-[calc(100vh-200px)] bg-gray-100 rounded-xl overflow-hidden border border-gray-200">
-                        <Map
-                            center={center}
-                            zoom={11}
-                            markers={markers}
-                        />
-                    </div>
-                </div>
-
-                {/* List View (Always visible on desktop, toggled on mobile) */}
-                <div className={clsx(
-                    "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 pb-20 md:pb-0",
-                    viewMode === 'map' ? "hidden md:grid" : "grid"
-                )}>
-                    {clinics.map((clinic) => (
-                        <div key={clinic.id} className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition-shadow relative group h-fit">
-                            <div className="p-5 space-y-4">
-                                <div className="flex justify-between items-start">
-                                    <h3 className="font-semibold text-lg text-gray-900">{clinic.name}</h3>
-                                    <span className={clsx('px-2.5 py-0.5 rounded-full text-xs font-medium', statusColors[clinic.status])}>
-                                        {clinic.status}
-                                    </span>
-                                </div>
-
-                                <div className="space-y-2 text-sm text-gray-600">
-                                    <div className="flex items-start gap-2">
-                                        <MapPin className="w-4 h-4 mt-0.5 text-gray-400" />
-                                        <span>{clinic.address}</span>
+            <div className="flex-1 min-h-0 relative">
+                {viewMode === 'list' ? (
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 overflow-y-auto h-full pb-20">
+                        {clinics.map((clinic) => (
+                            <div key={clinic.id} className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition-shadow relative group h-fit">
+                                <div className="p-5 space-y-4">
+                                    <div className="flex justify-between items-start">
+                                        <h3 className="font-semibold text-lg text-gray-900">{clinic.name}</h3>
+                                        <span className={clsx('px-2.5 py-0.5 rounded-full text-xs font-medium', statusColors[clinic.status])}>
+                                            {clinic.status}
+                                        </span>
                                     </div>
-                                    {clinic.phone && (
-                                        <div className="flex items-center gap-2">
-                                            <Phone className="w-4 h-4 text-gray-400" />
-                                            <span>{clinic.phone}</span>
+
+                                    <div className="space-y-2 text-sm text-gray-600">
+                                        <div className="flex items-start gap-2">
+                                            <MapPin className="w-4 h-4 mt-0.5 text-gray-400" />
+                                            <span>{clinic.address}</span>
                                         </div>
-                                    )}
-                                    {clinic.website && (
-                                        <div className="flex items-center gap-2">
-                                            <ExternalLink className="w-4 h-4 text-gray-400" />
-                                            <a href={clinic.website} target="_blank" rel="noopener noreferrer" className="text-teal-600 hover:underline">
-                                                Visit Website
-                                            </a>
-                                        </div>
-                                    )}
+                                        {clinic.phone && (
+                                            <div className="flex items-center gap-2">
+                                                <Phone className="w-4 h-4 text-gray-400" />
+                                                <span>{clinic.phone}</span>
+                                            </div>
+                                        )}
+                                        {clinic.website && (
+                                            <div className="flex items-center gap-2">
+                                                <ExternalLink className="w-4 h-4 text-gray-400" />
+                                                <a href={clinic.website} target="_blank" rel="noopener noreferrer" className="text-teal-600 hover:underline">
+                                                    Visit Website
+                                                </a>
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
+
+                                {/* Action Buttons */}
+                                <div className="absolute top-4 right-4 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity bg-white/90 p-1 rounded-lg shadow-sm">
+                                    <Link
+                                        to={`/clinics/add?id=${clinic.id}`}
+                                        className="p-1.5 text-gray-500 hover:text-teal-600 hover:bg-teal-50 rounded-md transition-colors"
+                                        title="Edit Clinic"
+                                    >
+                                        <Pencil className="w-4 h-4" />
+                                    </Link>
+                                    <button
+                                        onClick={() => handleDelete(clinic.id!)}
+                                        className="p-1.5 text-gray-500 hover:text-red-600 hover:bg-red-50 rounded-md transition-colors"
+                                        title="Delete Clinic"
+                                    >
+                                        <Trash2 className="w-4 h-4" />
+                                    </button>
                                 </div>
                             </div>
+                        ))}
 
-                            {/* Action Buttons */}
-                            <div className="absolute top-4 right-4 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity bg-white/90 p-1 rounded-lg shadow-sm">
-                                <Link
-                                    to={`/clinics/add?id=${clinic.id}`}
-                                    className="p-1.5 text-gray-500 hover:text-teal-600 hover:bg-teal-50 rounded-md transition-colors"
-                                    title="Edit Clinic"
-                                >
-                                    <Pencil className="w-4 h-4" />
+                        {clinics.length === 0 && (
+                            <div className="col-span-full text-center py-12 bg-gray-50 rounded-xl border-2 border-dashed border-gray-200">
+                                <p className="text-gray-500">No clinics added yet.</p>
+                                <Link to="/clinics/add" className="text-teal-600 font-medium hover:underline mt-2 inline-block">
+                                    Add your first clinic
                                 </Link>
-                                <button
-                                    onClick={() => handleDelete(clinic.id!)}
-                                    className="p-1.5 text-gray-500 hover:text-red-600 hover:bg-red-50 rounded-md transition-colors"
-                                    title="Delete Clinic"
-                                >
-                                    <Trash2 className="w-4 h-4" />
-                                </button>
                             </div>
-                        </div>
-                    ))}
-
-                    {clinics.length === 0 && (
-                        <div className="col-span-full text-center py-12 bg-gray-50 rounded-xl border-2 border-dashed border-gray-200">
-                            <p className="text-gray-500">No clinics added yet.</p>
-                            <Link to="/clinics/add" className="text-teal-600 font-medium hover:underline mt-2 inline-block">
-                                Add your first clinic
-                            </Link>
-                        </div>
-                    )}
-                </div>
+                        )}
+                    </div>
+                ) : (
+                    <div className="h-full rounded-xl overflow-hidden border border-gray-200 shadow-sm">
+                        <Map markers={markers} center={center} />
+                    </div>
+                )}
             </div>
         </div>
     );
