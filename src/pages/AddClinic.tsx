@@ -2,7 +2,8 @@ import { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { db } from '../lib/db';
 import Map from '../components/Map';
-import { Search, Save, ArrowLeft, MapPin, Trash2 } from 'lucide-react';
+import PlacesAutocomplete from '../components/PlacesAutocomplete';
+import { Save, ArrowLeft, MapPin, Trash2 } from 'lucide-react';
 
 const DORAL_COORDS: [number, number] = [25.8123, -80.3553]; // 5225 NW 85th Ave, Doral, FL approx
 
@@ -35,8 +36,6 @@ export default function AddClinic() {
         return saved ? JSON.parse(saved) : DORAL_COORDS;
     });
 
-    const [searchQuery, setSearchQuery] = useState('');
-    const [searchResults, setSearchResults] = useState<any[]>([]);
     const [nearbyClinics, setNearbyClinics] = useState<{ id: number, lat: number, lng: number, title: string }[]>([]);
     const [isSearching, setIsSearching] = useState(false);
 
@@ -65,38 +64,26 @@ export default function AddClinic() {
         }
     }, [editId]);
 
-    // Search as user types
-    useEffect(() => {
-        const searchLocations = async () => {
-            if (!searchQuery || searchQuery.length < 3) {
-                setSearchResults([]);
-                return;
-            }
+    const handlePlaceSelect = (place: google.maps.places.PlaceResult) => {
+        if (!place.geometry?.location) return;
 
-            try {
-                const response = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(searchQuery)}&limit=5&addressdetails=1`);
-                const data = await response.json();
-                setSearchResults(data);
-            } catch (error) {
-                console.error('Search error:', error);
-            }
-        };
+        const lat = place.geometry.location.lat();
+        const lng = place.geometry.location.lng();
+        setLocation([lat, lng]);
 
-        const debounceTimeout = setTimeout(searchLocations, 300);
-        return () => clearTimeout(debounceTimeout);
-    }, [searchQuery]);
+        // Extract phone number (remove country code and formatting)
+        let phone = place.formatted_phone_number || '';
+        if (phone) {
+            phone = phone.replace(/^\+1\s*/, '').replace(/[()-\s]/g, '');
+        }
 
-    const handleSelectSearchResult = (result: any) => {
-        const lat = parseFloat(result.lat);
-        const lon = parseFloat(result.lon);
-        setLocation([lat, lon]);
         setFormData(prev => ({
             ...prev,
-            name: result.name || result.display_name.split(',')[0],
-            address: result.display_name
+            name: place.name || '',
+            address: place.formatted_address || '',
+            phone: phone,
+            website: place.website || ''
         }));
-        setSearchResults([]);
-        setSearchQuery('');
     };
 
     const findNearbyClinics = async () => {
@@ -229,14 +216,7 @@ export default function AddClinic() {
                                     value={formData.address}
                                     onChange={e => setFormData({ ...formData, address: e.target.value })}
                                 />
-                                <button
-                                    type="button"
-                                    onClick={() => setSearchQuery(formData.address)} // Pre-fill search
-                                    className="px-3 py-2 bg-gray-100 text-gray-600 rounded-lg hover:bg-gray-200"
-                                    title="Use address to search on map"
-                                >
-                                    <Search className="w-4 h-4" />
-                                </button>
+
                             </div>
                         </div>
 
@@ -295,32 +275,15 @@ export default function AddClinic() {
                 <div className="h-[600px] bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden flex flex-col">
                     <div className="p-4 border-b border-gray-200 flex gap-2 relative">
                         <div className="flex-1 relative">
-                            <input
-                                type="text"
-                                placeholder="Search location..."
-                                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
-                                value={searchQuery}
-                                onChange={e => setSearchQuery(e.target.value)}
-                            />
-
-                            {/* Search Results Dropdown */}
-                            {searchResults.length > 0 && (
-                                <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-60 overflow-y-auto z-50">
-                                    {searchResults.map((result, index) => (
-                                        <button
-                                            key={index}
-                                            type="button"
-                                            onClick={() => handleSelectSearchResult(result)}
-                                            className="w-full text-left px-4 py-2 hover:bg-gray-50 border-b border-gray-100 last:border-0"
-                                        >
-                                            <p className="font-medium text-gray-900 text-sm">
-                                                {result.name || result.display_name.split(',')[0]}
-                                            </p>
-                                            <p className="text-gray-500 text-xs truncate">{result.display_name}</p>
-                                        </button>
-                                    ))}
-                                </div>
-                            )}
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">Search for Clinic or Location</label>
+                                <PlacesAutocomplete
+                                    onPlaceSelect={handlePlaceSelect}
+                                    placeholder="Search for a clinic (e.g., 'Doral Dental')..."
+                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
+                                />
+                                <p className="text-xs text-gray-500 mt-1">✨ Powered by Google - auto-fills name, address, phone, and website</p>
+                            </div>
                         </div>
                         <button
                             onClick={findNearbyClinics}
