@@ -38,8 +38,16 @@ export default function Dashboard() {
         let chartTitle = '';
         let chartSubtitle = '';
 
+        // Helper to get YYYY-MM-DD in local time
+        const getLocalDateString = (date: Date) => {
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+            return `${year}-${month}-${day}`;
+        };
+
         const today = new Date();
-        today.setHours(0, 0, 0, 0);
+        // Remove setHours(0,0,0,0) to match ActivityLogs and avoid timezone shifts when using local getters
 
         if (chartView === 'weekly') {
             chartTitle = 'Weekly Progress';
@@ -47,7 +55,7 @@ export default function Dashboard() {
             const last7Days = Array.from({ length: 7 }, (_, i) => {
                 const d = new Date(today);
                 d.setDate(today.getDate() - 6 + i);
-                return d.toISOString().split('T')[0];
+                return getLocalDateString(d);
             });
 
             chartData = last7Days.map(date => {
@@ -55,7 +63,7 @@ export default function Dashboard() {
                 const shadowing = dayLogs.filter(l => l.type === 'Shadowing').reduce((sum, l) => sum + l.duration, 0);
                 const dentalVol = dayLogs.filter(l => l.type === 'Dental Volunteering').reduce((sum, l) => sum + l.duration, 0);
                 const nonDentalVol = dayLogs.filter(l => l.type === 'Non-Dental Volunteering').reduce((sum, l) => sum + l.duration, 0);
-                const dayName = new Date(date).toLocaleDateString('en-US', { weekday: 'short' });
+                const dayName = new Date(date + 'T00:00:00').toLocaleDateString('en-US', { weekday: 'short' });
 
                 return {
                     name: dayName,
@@ -77,11 +85,7 @@ export default function Dashboard() {
 
             const days = Array.from({ length: daysInMonthSoFar }, (_, i) => {
                 const d = new Date(currentYear, currentMonth, i + 1);
-                return d.toISOString().split('T')[0];
-            }).filter(dateStr => {
-                // Ensure the date is actually in the current month
-                const date = new Date(dateStr);
-                return date.getMonth() === currentMonth && date.getFullYear() === currentYear;
+                return getLocalDateString(d);
             });
 
             chartData = days.map(date => {
@@ -91,7 +95,7 @@ export default function Dashboard() {
                 const nonDentalVol = dayLogs.filter(l => l.type === 'Non-Dental Volunteering').reduce((sum, l) => sum + l.duration, 0);
 
                 return {
-                    name: new Date(date).getDate().toString(), // Just the day number
+                    name: new Date(date + 'T00:00:00').getDate().toString(), // Just the day number
                     date: date,
                     'Shadowing': shadowing,
                     'Dental Volunteering': dentalVol,
@@ -105,20 +109,19 @@ export default function Dashboard() {
 
             // Find earliest log date or default to today
             const sortedLogs = [...logs].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
-            const firstLogDate = sortedLogs.length > 0 ? new Date(sortedLogs[0].date) : new Date(today);
+            const firstLogDate = sortedLogs.length > 0 ? new Date(sortedLogs[0].date + 'T00:00:00') : new Date(today);
 
             // Create weeks from first log date to today
             const weeks = [];
             let currentStart = new Date(firstLogDate);
-            // Adjust to start of week (optional, but let's stick to 7-day chunks from first log)
 
             let weekCount = 1;
             while (currentStart <= today) {
                 const currentEnd = new Date(currentStart);
                 currentEnd.setDate(currentStart.getDate() + 6);
 
-                const weekStartStr = currentStart.toISOString().split('T')[0];
-                const weekEndStr = currentEnd.toISOString().split('T')[0]; // Note: this might go into future, but we filter logs
+                const weekStartStr = getLocalDateString(currentStart);
+                const weekEndStr = getLocalDateString(currentEnd);
 
                 // Filter logs for this week range
                 const weekLogs = logs.filter(log => log.date >= weekStartStr && log.date <= weekEndStr);
