@@ -68,6 +68,10 @@ export default function ActivityLogs() {
     const chartData = data?.chartData || [];
 
     const handleExport = async () => {
+        if (!isSubscribed) {
+            navigate('/settings#subscription');
+            return;
+        }
         if (!logs || logs.length === 0) return;
 
         const zip = new JSZip();
