@@ -13,7 +13,7 @@ export default function Layout() {
     ];
 
     return (
-        <div className="h-screen bg-gray-50 flex overflow-hidden">
+        <div className="h-dvh bg-gray-50 flex overflow-hidden">
             {/* Desktop Sidebar */}
             <aside className="hidden md:flex flex-col w-64 bg-white border-r border-gray-200 h-full shrink-0">
                 <div className="p-6 border-b border-gray-200">
@@ -51,7 +51,7 @@ export default function Layout() {
                 </header>
 
                 {/* Main Content */}
-                <main className="flex-1 overflow-y-auto p-4 md:p-8 pb-96 md:pb-8 w-full scroll-smooth">
+                <main className="flex-1 overflow-y-auto p-4 md:p-8 pb-[500px] md:pb-8 w-full scroll-smooth">
                     <div className="max-w-7xl mx-auto">
                         <Outlet />
                     </div>
