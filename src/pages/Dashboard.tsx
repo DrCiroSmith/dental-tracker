@@ -38,16 +38,9 @@ export default function Dashboard() {
         let chartTitle = '';
         let chartSubtitle = '';
 
-        // Helper to get YYYY-MM-DD in local time
-        const getLocalDateString = (date: Date) => {
-            const year = date.getFullYear();
-            const month = String(date.getMonth() + 1).padStart(2, '0');
-            const day = String(date.getDate()).padStart(2, '0');
-            return `${year}-${month}-${day}`;
-        };
-
         const today = new Date();
-        // Use local time for everything to match user's wall clock
+        // Use UTC generation for DATA matching (matches ActivityLogs logic)
+        // But use Local Time for LABELS (matches user's wall clock)
 
         if (chartView === 'weekly') {
             chartTitle = 'Weekly Progress';
@@ -55,7 +48,7 @@ export default function Dashboard() {
             const last7Days = Array.from({ length: 7 }, (_, i) => {
                 const d = new Date(today);
                 d.setDate(today.getDate() - 6 + i);
-                return getLocalDateString(d);
+                return d.toISOString().split('T')[0]; // UTC Date String for matching DB
             });
 
             chartData = last7Days.map(date => {
@@ -64,10 +57,9 @@ export default function Dashboard() {
                 const dentalVol = dayLogs.filter(l => l.type === 'Dental Volunteering').reduce((sum, l) => sum + l.duration, 0);
                 const nonDentalVol = dayLogs.filter(l => l.type === 'Non-Dental Volunteering').reduce((sum, l) => sum + l.duration, 0);
 
-                // Parse YYYY-MM-DD as local date for correct weekday name
-                const [y, m, d] = date.split('-').map(Number);
-                const localDate = new Date(y, m - 1, d);
-                const dayName = localDate.toLocaleDateString('en-US', { weekday: 'short' });
+                // Label: Parse UTC string as Date object, then format to Local
+                // new Date("2025-11-22") -> UTC Midnight -> Local Previous Day 7pm (if EST)
+                const dayName = new Date(date).toLocaleDateString('en-US', { weekday: 'short' });
 
                 return {
                     name: dayName,
@@ -83,13 +75,14 @@ export default function Dashboard() {
             chartTitle = `${monthName} Progress`;
             chartSubtitle = `1st - ${today.getDate()}th`;
 
-            const currentMonth = today.getMonth();
-            const currentYear = today.getFullYear();
-            const daysInMonthSoFar = today.getDate();
+            const utcToday = new Date();
+            const utcMonth = utcToday.getUTCMonth();
+            const utcYear = utcToday.getUTCFullYear();
+            const utcDay = utcToday.getUTCDate();
 
-            const days = Array.from({ length: daysInMonthSoFar }, (_, i) => {
-                const d = new Date(currentYear, currentMonth, i + 1);
-                return getLocalDateString(d);
+            const days = Array.from({ length: utcDay }, (_, i) => {
+                const d = new Date(Date.UTC(utcYear, utcMonth, i + 1));
+                return d.toISOString().split('T')[0];
             });
 
             chartData = days.map(date => {
@@ -99,7 +92,7 @@ export default function Dashboard() {
                 const nonDentalVol = dayLogs.filter(l => l.type === 'Non-Dental Volunteering').reduce((sum, l) => sum + l.duration, 0);
 
                 return {
-                    name: new Date(date + 'T00:00:00').getDate().toString(),
+                    name: new Date(date).getDate().toString(), // Use Local date for label (e.g. 22 UTC -> 21 Local)
                     date: date,
                     'Shadowing': shadowing,
                     'Dental Volunteering': dentalVol,
@@ -113,10 +106,8 @@ export default function Dashboard() {
 
             // Find earliest log date or default to today
             const sortedLogs = [...logs].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
-            // Ensure we parse the log date correctly as local to avoid shifts
-            const firstLogDate = sortedLogs.length > 0
-                ? new Date(sortedLogs[0].date + 'T00:00:00')
-                : new Date(today);
+            // Use UTC parsing for sorting to be safe
+            const firstLogDate = sortedLogs.length > 0 ? new Date(sortedLogs[0].date) : new Date(today);
 
             // Create weeks from first log date to today
             const weeks = [];
@@ -127,8 +118,8 @@ export default function Dashboard() {
                 const currentEnd = new Date(currentStart);
                 currentEnd.setDate(currentStart.getDate() + 6);
 
-                const weekStartStr = getLocalDateString(currentStart);
-                const weekEndStr = getLocalDateString(currentEnd);
+                const weekStartStr = currentStart.toISOString().split('T')[0];
+                const weekEndStr = currentEnd.toISOString().split('T')[0];
 
                 // Filter logs for this week range
                 const weekLogs = logs.filter(log => log.date >= weekStartStr && log.date <= weekEndStr);
