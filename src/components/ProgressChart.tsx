@@ -1,4 +1,4 @@
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 
 interface ChartData {
     name: string; // Day name (e.g., "Mon")
@@ -95,12 +95,7 @@ export default function ProgressChart({ data, variant, title = "Weekly Progress"
                                 return null;
                             }}
                         />
-                        <Legend
-                            verticalAlign="top"
-                            height={36}
-                            iconType="circle"
-                            wrapperStyle={{ fontSize: '12px', color: '#374151' }}
-                        />
+                        {/* Legend removed - hover tooltip provides activity info */}
 
                         {variant === 'stacked' ? (
                             <>
