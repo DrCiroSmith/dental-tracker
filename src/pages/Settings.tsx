@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { db, type Profile } from '../lib/db';
 import { Download, Upload, AlertTriangle, CheckCircle2, User, CreditCard, Shield, Trash2, UserCog, LogOut } from 'lucide-react';
 import { saveAs } from 'file-saver';
@@ -17,23 +17,25 @@ function ProfileSettings() {
         return undefined;
     }, [user?.id]);
     const [isEditing, setIsEditing] = useState(false);
-    const [formData, setFormData] = useState({
-        name: '',
-        targetHoursShadowing: 100,
-        targetHoursDental: 100,
-        targetHoursNonDental: 150
-    });
-
+    
+    // Derive initial form data from profile using useMemo
+    const initialFormData = useMemo(() => ({
+        name: profile?.name || '',
+        targetHoursShadowing: profile?.targetHoursShadowing || 100,
+        targetHoursDental: profile?.targetHoursDental || 100,
+        targetHoursNonDental: profile?.targetHoursNonDental || 150
+    }), [profile]);
+    
+    const [formData, setFormData] = useState(initialFormData);
+    
+    // Sync form data when profile changes (only when not editing)
+    const profileVersion = profile ? `${profile.name}-${profile.targetHoursShadowing}-${profile.targetHoursDental}-${profile.targetHoursNonDental}` : '';
     useEffect(() => {
-        if (profile) {
-            setFormData({
-                name: profile.name,
-                targetHoursShadowing: profile.targetHoursShadowing || 100,
-                targetHoursDental: profile.targetHoursDental || 100,
-                targetHoursNonDental: profile.targetHoursNonDental || 150
-            });
+        if (!isEditing && profile) {
+            setFormData(initialFormData);
         }
-    }, [profile]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [profileVersion, isEditing]);
 
     useEffect(() => {
         if (location.hash === '#subscription') {
@@ -66,17 +68,17 @@ function ProfileSettings() {
     if (!profile) return null;
 
     return (
-        <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200 space-y-4">
+        <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 space-y-4">
             <div className="flex items-start gap-4">
-                <div className="p-3 bg-teal-100 rounded-full">
-                    <User className="w-6 h-6 text-teal-600" />
+                <div className="p-3 bg-teal-100 dark:bg-teal-900/50 rounded-full">
+                    <User className="w-6 h-6 text-teal-600 dark:text-teal-400" />
                 </div>
                 <div className="flex-1">
                     <div className="flex justify-between items-start">
-                        <h2 className="text-lg font-semibold text-gray-900">User Profile</h2>
+                        <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">User Profile</h2>
                         <button
                             onClick={() => isEditing ? handleSave() : setIsEditing(true)}
-                            className="text-sm text-teal-600 font-medium hover:underline"
+                            className="text-sm text-teal-600 dark:text-teal-400 font-medium hover:underline"
                         >
                             {isEditing ? 'Save Changes' : 'Edit Profile'}
                         </button>
@@ -84,66 +86,66 @@ function ProfileSettings() {
 
                     <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div className="md:col-span-2">
-                            <label className="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
+                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Full Name</label>
                             <input
                                 type="text"
                                 disabled={!isEditing}
-                                className="w-full px-3 py-2 border border-gray-300 rounded-lg disabled:bg-gray-50 disabled:text-gray-500"
+                                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg disabled:bg-gray-50 dark:disabled:bg-gray-700 disabled:text-gray-500 dark:disabled:text-gray-400 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
                                 value={formData.name}
                                 onChange={e => setFormData({ ...formData, name: e.target.value })}
                             />
                         </div>
 
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">Shadowing Target</label>
+                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Shadowing Target</label>
                             <input
                                 type="number"
                                 disabled={!isEditing}
-                                className="w-full px-3 py-2 border border-gray-300 rounded-lg disabled:bg-gray-50 disabled:text-gray-500"
+                                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg disabled:bg-gray-50 dark:disabled:bg-gray-700 disabled:text-gray-500 dark:disabled:text-gray-400 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
                                 value={formData.targetHoursShadowing}
                                 onChange={e => setFormData({ ...formData, targetHoursShadowing: Number(e.target.value) })}
                             />
                         </div>
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">Dental Volunteering Target</label>
+                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Dental Volunteering Target</label>
                             <input
                                 type="number"
                                 disabled={!isEditing}
-                                className="w-full px-3 py-2 border border-gray-300 rounded-lg disabled:bg-gray-50 disabled:text-gray-500"
+                                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg disabled:bg-gray-50 dark:disabled:bg-gray-700 disabled:text-gray-500 dark:disabled:text-gray-400 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
                                 value={formData.targetHoursDental}
                                 onChange={e => setFormData({ ...formData, targetHoursDental: Number(e.target.value) })}
                             />
                         </div>
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">Non-Dental Volunteering Target</label>
+                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Non-Dental Volunteering Target</label>
                             <input
                                 type="number"
                                 disabled={!isEditing}
-                                className="w-full px-3 py-2 border border-gray-300 rounded-lg disabled:bg-gray-50 disabled:text-gray-500"
+                                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg disabled:bg-gray-50 dark:disabled:bg-gray-700 disabled:text-gray-500 dark:disabled:text-gray-400 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
                                 value={formData.targetHoursNonDental}
                                 onChange={e => setFormData({ ...formData, targetHoursNonDental: Number(e.target.value) })}
                             />
                         </div>
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">Total Target (Calculated)</label>
-                            <div className="w-full px-3 py-2 border border-gray-200 bg-gray-50 rounded-lg text-gray-500">
+                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Total Target (Calculated)</label>
+                            <div className="w-full px-3 py-2 border border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 rounded-lg text-gray-500 dark:text-gray-400">
                                 {(formData.targetHoursShadowing || 0) + (formData.targetHoursDental || 0) + (formData.targetHoursNonDental || 0)} hours
                             </div>
                         </div>
                     </div>
 
-                    <div id="subscription" className="mt-4 pt-4 border-t border-gray-100 flex items-center justify-between">
+                    <div id="subscription" className="mt-4 pt-4 border-t border-gray-100 dark:border-gray-700 flex items-center justify-between">
                         <div className="flex items-center gap-2">
-                            <CreditCard className="w-4 h-4 text-gray-400" />
-                            <span className="text-sm text-gray-600">Account Tier:</span>
+                            <CreditCard className="w-4 h-4 text-gray-400 dark:text-gray-500" />
+                            <span className="text-sm text-gray-600 dark:text-gray-400">Account Tier:</span>
                         </div>
                         <span className={`px-2 py-1 rounded-full text-xs font-medium ${profile.role === 'primary_admin'
-                            ? 'bg-purple-100 text-purple-800'
+                            ? 'bg-purple-100 dark:bg-purple-900/50 text-purple-800 dark:text-purple-300'
                             : profile.role === 'admin'
-                                ? 'bg-blue-100 text-blue-800'
+                                ? 'bg-blue-100 dark:bg-blue-900/50 text-blue-800 dark:text-blue-300'
                                 : profile.subscriptionStatus === 'active'
-                                    ? 'bg-green-100 text-green-800'
-                                    : 'bg-gray-100 text-gray-800'
+                                    ? 'bg-green-100 dark:bg-green-900/50 text-green-800 dark:text-green-300'
+                                    : 'bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-300'
                             }`}>
                             {profile.role === 'primary_admin'
                                 ? 'Primary Admin'
@@ -155,8 +157,8 @@ function ProfileSettings() {
                         </span>
                     </div>
 
-                    <div className="mt-8 pt-6 border-t border-gray-200">
-                        <h3 className="text-sm font-medium text-red-800 mb-4">Danger Zone</h3>
+                    <div className="mt-8 pt-6 border-t border-gray-200 dark:border-gray-700">
+                        <h3 className="text-sm font-medium text-red-800 dark:text-red-400 mb-4">Danger Zone</h3>
                         <button
                             onClick={async () => {
                                 if (confirm('WARNING: This will delete ALL data (logs, clinics, profile) and reset the app. This action cannot be undone. Are you sure?')) {
@@ -165,23 +167,23 @@ function ProfileSettings() {
                                     window.location.reload();
                                 }
                             }}
-                            className="w-full px-4 py-2 border border-red-200 text-red-600 rounded-lg text-sm font-medium hover:bg-red-50 transition-colors"
+                            className="w-full px-4 py-2 border border-red-200 dark:border-red-800 text-red-600 dark:text-red-400 rounded-lg text-sm font-medium hover:bg-red-50 dark:hover:bg-red-900/30 transition-colors"
                         >
                             Factory Reset (Clear All Data)
                         </button>
                     </div>
 
-                    <div className="mt-4 pt-4 border-t border-gray-100">
+                    <div className="mt-4 pt-4 border-t border-gray-100 dark:border-gray-700">
                         <button
                             onClick={handleLogout}
-                            className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-red-50 text-red-700 rounded-lg hover:bg-red-100 transition-colors font-medium"
+                            className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-400 rounded-lg hover:bg-red-100 dark:hover:bg-red-900/50 transition-colors font-medium"
                         >
                             <LogOut className="w-4 h-4" />
                             Sign Out
                         </button>
                         <a
                             href="mailto:support@dentaltracker.com?subject=App Feedback"
-                            className="w-full flex items-center justify-center gap-2 py-2 px-4 bg-white border border-gray-200 hover:bg-gray-50 text-gray-600 rounded-lg transition-colors mt-2 text-sm font-medium"
+                            className="w-full flex items-center justify-center gap-2 py-2 px-4 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-600 text-gray-600 dark:text-gray-300 rounded-lg transition-colors mt-2 text-sm font-medium"
                         >
                             Send Feedback
                         </a>
@@ -279,21 +281,21 @@ function AdminPanel() {
     if (!users) return null;
 
     return (
-        <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200 space-y-4">
+        <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 space-y-4">
             <div className="flex items-start gap-4">
-                <div className="p-3 bg-purple-100 rounded-full">
-                    <Shield className="w-6 h-6 text-purple-600" />
+                <div className="p-3 bg-purple-100 dark:bg-purple-900/50 rounded-full">
+                    <Shield className="w-6 h-6 text-purple-600 dark:text-purple-400" />
                 </div>
                 <div className="flex-1">
                     <div className="flex justify-between items-start">
                         <div>
-                            <h2 className="text-lg font-semibold text-gray-900">Admin Panel</h2>
-                            <p className="text-gray-500 text-sm mt-1">Manage users and permissions.</p>
+                            <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Admin Panel</h2>
+                            <p className="text-gray-500 dark:text-gray-400 text-sm mt-1">Manage users and permissions.</p>
                         </div>
                         {isPrimaryAdmin && (
                             <button
                                 onClick={seedTestUsers}
-                                className="text-sm text-purple-600 font-medium hover:underline"
+                                className="text-sm text-purple-600 dark:text-purple-400 font-medium hover:underline"
                             >
                                 Seed Test Users
                             </button>
@@ -303,24 +305,24 @@ function AdminPanel() {
                     <div className="mt-4 overflow-x-auto">
                         <table className="w-full text-left text-sm">
                             <thead>
-                                <tr className="border-b border-gray-200">
-                                    <th className="pb-2 font-medium text-gray-500">User</th>
-                                    <th className="pb-2 font-medium text-gray-500">Role</th>
-                                    <th className="pb-2 font-medium text-gray-500">Subscription</th>
-                                    <th className="pb-2 font-medium text-gray-500 text-right">Actions</th>
+                                <tr className="border-b border-gray-200 dark:border-gray-700">
+                                    <th className="pb-2 font-medium text-gray-500 dark:text-gray-400">User</th>
+                                    <th className="pb-2 font-medium text-gray-500 dark:text-gray-400">Role</th>
+                                    <th className="pb-2 font-medium text-gray-500 dark:text-gray-400">Subscription</th>
+                                    <th className="pb-2 font-medium text-gray-500 dark:text-gray-400 text-right">Actions</th>
                                 </tr>
                             </thead>
-                            <tbody className="divide-y divide-gray-100">
+                            <tbody className="divide-y divide-gray-100 dark:divide-gray-700">
                                 {users.map(u => (
                                     <tr key={u.id} className="group">
                                         <td className="py-3">
-                                            <div className="font-medium text-gray-900">{u.name}</div>
-                                            <div className="text-gray-500 text-xs">{u.email}</div>
+                                            <div className="font-medium text-gray-900 dark:text-gray-100">{u.name}</div>
+                                            <div className="text-gray-500 dark:text-gray-400 text-xs">{u.email}</div>
                                         </td>
                                         <td className="py-3">
-                                            <span className={`px-2 py-1 rounded-full text-xs font-medium ${u.role === 'primary_admin' ? 'bg-purple-100 text-purple-800' :
-                                                u.role === 'admin' ? 'bg-blue-100 text-blue-800' :
-                                                    'bg-gray-100 text-gray-800'
+                                            <span className={`px-2 py-1 rounded-full text-xs font-medium ${u.role === 'primary_admin' ? 'bg-purple-100 dark:bg-purple-900/50 text-purple-800 dark:text-purple-300' :
+                                                u.role === 'admin' ? 'bg-blue-100 dark:bg-blue-900/50 text-blue-800 dark:text-blue-300' :
+                                                    'bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-300'
                                                 }`}>
                                                 {u.role === 'primary_admin' ? 'Primary Admin' : u.role === 'admin' ? 'Admin' : 'User'}
                                             </span>
@@ -328,7 +330,7 @@ function AdminPanel() {
                                         <td className="py-3">
                                             <button
                                                 onClick={() => toggleSubscription(u)}
-                                                className={`px-2 py-1 rounded-full text-xs font-medium cursor-pointer hover:opacity-80 ${u.subscriptionStatus === 'active' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                                                className={`px-2 py-1 rounded-full text-xs font-medium cursor-pointer hover:opacity-80 ${u.subscriptionStatus === 'active' ? 'bg-green-100 dark:bg-green-900/50 text-green-800 dark:text-green-300' : 'bg-red-100 dark:bg-red-900/50 text-red-800 dark:text-red-300'
                                                     }`}
                                             >
                                                 {u.subscriptionStatus === 'active' ? 'Active' : 'Inactive'}
@@ -340,14 +342,14 @@ function AdminPanel() {
                                                     <>
                                                         <button
                                                             onClick={() => toggleAdmin(u)}
-                                                            className="p-1 text-gray-400 hover:text-blue-600 transition-colors"
+                                                            className="p-1 text-gray-400 dark:text-gray-500 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
                                                             title={u.role === 'admin' ? "Demote to User" : "Promote to Admin"}
                                                         >
                                                             <UserCog className="w-4 h-4" />
                                                         </button>
                                                         <button
                                                             onClick={() => deleteUser(u)}
-                                                            className="p-1 text-gray-400 hover:text-red-600 transition-colors"
+                                                            className="p-1 text-gray-400 dark:text-gray-500 hover:text-red-600 dark:hover:text-red-400 transition-colors"
                                                             title="Delete User"
                                                         >
                                                             <Trash2 className="w-4 h-4" />
@@ -431,7 +433,7 @@ export default function Settings() {
 
     return (
         <div className="max-w-2xl mx-auto space-y-8">
-            <h1 className="text-2xl font-bold text-gray-900">Settings</h1>
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Settings</h1>
 
             {/* Profile Section */}
             <ProfileSettings />
@@ -440,14 +442,14 @@ export default function Settings() {
             {isAdmin && <AdminPanel />}
 
             {/* Backup Section */}
-            <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200 space-y-4">
+            <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 space-y-4">
                 <div className="flex items-start gap-4">
-                    <div className="p-3 bg-blue-100 rounded-full">
-                        <Download className="w-6 h-6 text-blue-600" />
+                    <div className="p-3 bg-blue-100 dark:bg-blue-900/50 rounded-full">
+                        <Download className="w-6 h-6 text-blue-600 dark:text-blue-400" />
                     </div>
                     <div>
-                        <h2 className="text-lg font-semibold text-gray-900">Backup Data</h2>
-                        <p className="text-gray-500 text-sm mt-1">
+                        <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Backup Data</h2>
+                        <p className="text-gray-500 dark:text-gray-400 text-sm mt-1">
                             Download a secure copy of all your clinics and logs. Save this file to your computer, Google Drive, or email it to yourself.
                         </p>
                         <button
@@ -462,26 +464,26 @@ export default function Settings() {
             </div>
 
             {/* Restore Section */}
-            <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200 space-y-4">
+            <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 space-y-4">
                 <div className="flex items-start gap-4">
-                    <div className="p-3 bg-orange-100 rounded-full">
-                        <Upload className="w-6 h-6 text-orange-600" />
+                    <div className="p-3 bg-orange-100 dark:bg-orange-900/50 rounded-full">
+                        <Upload className="w-6 h-6 text-orange-600 dark:text-orange-400" />
                     </div>
                     <div>
-                        <h2 className="text-lg font-semibold text-gray-900">Restore Data</h2>
-                        <p className="text-gray-500 text-sm mt-1">
+                        <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Restore Data</h2>
+                        <p className="text-gray-500 dark:text-gray-400 text-sm mt-1">
                             Restore your data from a previously saved backup file.
                         </p>
 
-                        <div className="mt-4 p-4 bg-orange-50 border border-orange-100 rounded-lg flex items-start gap-3">
-                            <AlertTriangle className="w-5 h-5 text-orange-600 shrink-0 mt-0.5" />
-                            <p className="text-sm text-orange-800">
+                        <div className="mt-4 p-4 bg-orange-50 dark:bg-orange-900/30 border border-orange-100 dark:border-orange-800 rounded-lg flex items-start gap-3">
+                            <AlertTriangle className="w-5 h-5 text-orange-600 dark:text-orange-400 shrink-0 mt-0.5" />
+                            <p className="text-sm text-orange-800 dark:text-orange-300">
                                 <strong>Warning:</strong> Restoring will <u>delete all current data</u> on this device and replace it with the backup.
                             </p>
                         </div>
 
                         <div className="mt-4">
-                            <label className="inline-flex items-center gap-2 px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 cursor-pointer transition-colors">
+                            <label className="inline-flex items-center gap-2 px-4 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-600 cursor-pointer transition-colors">
                                 <Upload className="w-4 h-4" />
                                 Select Backup File
                                 <input
@@ -494,14 +496,14 @@ export default function Settings() {
                         </div>
 
                         {importStatus === 'success' && (
-                            <div className="mt-4 flex items-center gap-2 text-green-600 bg-green-50 p-3 rounded-lg">
+                            <div className="mt-4 flex items-center gap-2 text-green-600 dark:text-green-400 bg-green-50 dark:bg-green-900/30 p-3 rounded-lg">
                                 <CheckCircle2 className="w-5 h-5" />
                                 <span className="text-sm font-medium">{statusMessage}</span>
                             </div>
                         )}
 
                         {importStatus === 'error' && (
-                            <div className="mt-4 flex items-center gap-2 text-red-600 bg-red-50 p-3 rounded-lg">
+                            <div className="mt-4 flex items-center gap-2 text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/30 p-3 rounded-lg">
                                 <AlertTriangle className="w-5 h-5" />
                                 <span className="text-sm font-medium">{statusMessage}</span>
                             </div>

@@ -10,7 +10,9 @@ import Settings from './pages/Settings';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import AdmissionsGuide from './pages/AdmissionsGuide';
+import MockExam from './pages/MockExam';
 import { AuthProvider, useAuth } from './context/AuthContext';
+import { ThemeProvider } from './context/ThemeContext';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import WelcomeModal from './components/WelcomeModal';
 
@@ -31,29 +33,32 @@ function ProtectedRoute({ children }: { children: React.ReactElement }) {
 function App() {
   return (
     <ErrorBoundary>
-      <AuthProvider>
-        <Router>
-          <WelcomeModal />
-          <Routes>
-            <Route path="/login" element={<Login />} />
-            <Route path="/register" element={<Register />} />
-            <Route path="/" element={
-              <ProtectedRoute>
-                <Layout />
-              </ProtectedRoute>
-            }>
-              <Route index element={<Dashboard />} />
-              <Route path="activity-logs" element={<ActivityLogs />} />
-              <Route path="log-hours" element={<LogHours />} />
-              <Route path="map" element={<Clinics />} />
-              <Route path="clinics" element={<Clinics />} />
-              <Route path="clinics/add" element={<AddClinic />} />
-              <Route path="admissions-guide" element={<AdmissionsGuide />} />
-              <Route path="settings" element={<Settings />} />
-            </Route>
-          </Routes>
-        </Router>
-      </AuthProvider>
+      <ThemeProvider>
+        <AuthProvider>
+          <Router>
+            <WelcomeModal />
+            <Routes>
+              <Route path="/login" element={<Login />} />
+              <Route path="/register" element={<Register />} />
+              <Route path="/" element={
+                <ProtectedRoute>
+                  <Layout />
+                </ProtectedRoute>
+              }>
+                <Route index element={<Dashboard />} />
+                <Route path="activity-logs" element={<ActivityLogs />} />
+                <Route path="log-hours" element={<LogHours />} />
+                <Route path="map" element={<Clinics />} />
+                <Route path="clinics" element={<Clinics />} />
+                <Route path="clinics/add" element={<AddClinic />} />
+                <Route path="admissions-guide" element={<AdmissionsGuide />} />
+                <Route path="mock-exam" element={<MockExam />} />
+                <Route path="settings" element={<Settings />} />
+              </Route>
+            </Routes>
+          </Router>
+        </AuthProvider>
+      </ThemeProvider>
     </ErrorBoundary>
   );
 }
