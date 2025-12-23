@@ -7,12 +7,12 @@ import clsx from 'clsx';
 import Map from '../components/Map';
 
 const statusColors: Record<string, string> = {
-    'Contacted': 'bg-blue-100 text-blue-800',
-    'Applied': 'bg-purple-100 text-purple-800',
-    'Interview Scheduled': 'bg-yellow-100 text-yellow-800',
-    'Accepted': 'bg-green-100 text-green-800',
-    'Waitlisted': 'bg-orange-100 text-orange-800',
-    'Rejected': 'bg-red-100 text-red-800',
+    'Contacted': 'bg-blue-100 dark:bg-blue-900/50 text-blue-800 dark:text-blue-300',
+    'Applied': 'bg-purple-100 dark:bg-purple-900/50 text-purple-800 dark:text-purple-300',
+    'Interview Scheduled': 'bg-yellow-100 dark:bg-yellow-900/50 text-yellow-800 dark:text-yellow-300',
+    'Accepted': 'bg-green-100 dark:bg-green-900/50 text-green-800 dark:text-green-300',
+    'Waitlisted': 'bg-orange-100 dark:bg-orange-900/50 text-orange-800 dark:text-orange-300',
+    'Rejected': 'bg-red-100 dark:bg-red-900/50 text-red-800 dark:text-red-300',
 };
 
 export default function Clinics() {
@@ -56,30 +56,30 @@ export default function Clinics() {
             <div className="flex items-center justify-between shrink-0">
                 <div>
                     <div className="flex items-center gap-4">
-                        <h2 className="text-2xl font-bold text-gray-900">Clinics</h2>
+                        <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Clinics</h2>
                         {filter === 'active' && (
-                            <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-teal-100 text-teal-800 text-sm font-medium">
+                            <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-teal-100 dark:bg-teal-900/50 text-teal-800 dark:text-teal-300 text-sm font-medium">
                                 <Filter className="w-4 h-4" />
                                 Active Engagement
                                 <button
                                     onClick={() => setSearchParams({})}
-                                    className="ml-2 hover:text-teal-900"
+                                    className="ml-2 hover:text-teal-900 dark:hover:text-teal-200"
                                 >
                                     ×
                                 </button>
                             </span>
                         )}
                     </div>
-                    <p className="text-gray-500">Manage dental practices for shadowing.</p>
+                    <p className="text-gray-500 dark:text-gray-400">Manage dental practices for shadowing.</p>
                 </div>
                 <div className="flex gap-2">
                     {/* Mobile Toggle */}
-                    <div className="md:hidden flex bg-gray-100 p-1 rounded-lg">
+                    <div className="md:hidden flex bg-gray-100 dark:bg-gray-700 p-1 rounded-lg">
                         <button
                             onClick={() => setViewMode('list')}
                             className={clsx(
                                 "p-2 rounded-md transition-colors",
-                                viewMode === 'list' ? "bg-white shadow-sm text-teal-600" : "text-gray-500"
+                                viewMode === 'list' ? "bg-white dark:bg-gray-600 shadow-sm text-teal-600 dark:text-teal-400" : "text-gray-500 dark:text-gray-400"
                             )}
                         >
                             <List className="w-5 h-5" />
@@ -88,7 +88,7 @@ export default function Clinics() {
                             onClick={() => setViewMode('map')}
                             className={clsx(
                                 "p-2 rounded-md transition-colors",
-                                viewMode === 'map' ? "bg-white shadow-sm text-teal-600" : "text-gray-500"
+                                viewMode === 'map' ? "bg-white dark:bg-gray-600 shadow-sm text-teal-600 dark:text-teal-400" : "text-gray-500 dark:text-gray-400"
                             )}
                         >
                             <MapIcon className="w-5 h-5" />
@@ -109,30 +109,30 @@ export default function Clinics() {
                 {viewMode === 'list' ? (
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 overflow-y-auto h-full pb-20">
                         {clinics.map((clinic) => (
-                            <div key={clinic.id} className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition-shadow relative group h-fit">
+                            <div key={clinic.id} className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden hover:shadow-md transition-shadow relative group h-fit">
                                 <div className="p-5 space-y-4">
                                     <div className="flex justify-between items-start">
-                                        <h3 className="font-semibold text-lg text-gray-900">{clinic.name}</h3>
+                                        <h3 className="font-semibold text-lg text-gray-900 dark:text-gray-100">{clinic.name}</h3>
                                         <span className={clsx('px-2.5 py-0.5 rounded-full text-xs font-medium', statusColors[clinic.status])}>
                                             {clinic.status}
                                         </span>
                                     </div>
 
-                                    <div className="space-y-2 text-sm text-gray-600">
+                                    <div className="space-y-2 text-sm text-gray-600 dark:text-gray-400">
                                         <div className="flex items-start gap-2">
-                                            <MapPin className="w-4 h-4 mt-0.5 text-gray-400" />
+                                            <MapPin className="w-4 h-4 mt-0.5 text-gray-400 dark:text-gray-500" />
                                             <span>{clinic.address}</span>
                                         </div>
                                         {clinic.phone && (
                                             <div className="flex items-center gap-2">
-                                                <Phone className="w-4 h-4 text-gray-400" />
+                                                <Phone className="w-4 h-4 text-gray-400 dark:text-gray-500" />
                                                 <span>{clinic.phone}</span>
                                             </div>
                                         )}
                                         {clinic.website && (
                                             <div className="flex items-center gap-2">
-                                                <ExternalLink className="w-4 h-4 text-gray-400" />
-                                                <a href={clinic.website} target="_blank" rel="noopener noreferrer" className="text-teal-600 hover:underline">
+                                                <ExternalLink className="w-4 h-4 text-gray-400 dark:text-gray-500" />
+                                                <a href={clinic.website} target="_blank" rel="noopener noreferrer" className="text-teal-600 dark:text-teal-400 hover:underline">
                                                     Visit Website
                                                 </a>
                                             </div>
@@ -141,17 +141,17 @@ export default function Clinics() {
                                 </div>
 
                                 {/* Action Buttons */}
-                                <div className="absolute top-4 right-4 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity bg-white/90 p-1 rounded-lg shadow-sm">
+                                <div className="absolute top-4 right-4 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity bg-white/90 dark:bg-gray-800/90 p-1 rounded-lg shadow-sm">
                                     <Link
                                         to={`/clinics/add?id=${clinic.id}`}
-                                        className="p-1.5 text-gray-500 hover:text-teal-600 hover:bg-teal-50 rounded-md transition-colors"
+                                        className="p-1.5 text-gray-500 dark:text-gray-400 hover:text-teal-600 dark:hover:text-teal-400 hover:bg-teal-50 dark:hover:bg-teal-900/30 rounded-md transition-colors"
                                         title="Edit Clinic"
                                     >
                                         <Pencil className="w-4 h-4" />
                                     </Link>
                                     <button
                                         onClick={() => handleDelete(clinic.id!)}
-                                        className="p-1.5 text-gray-500 hover:text-red-600 hover:bg-red-50 rounded-md transition-colors"
+                                        className="p-1.5 text-gray-500 dark:text-gray-400 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/30 rounded-md transition-colors"
                                         title="Delete Clinic"
                                     >
                                         <Trash2 className="w-4 h-4" />
@@ -161,16 +161,16 @@ export default function Clinics() {
                         ))}
 
                         {clinics.length === 0 && (
-                            <div className="col-span-full text-center py-12 bg-gray-50 rounded-xl border-2 border-dashed border-gray-200">
-                                <p className="text-gray-500">No clinics added yet.</p>
-                                <Link to="/clinics/add" className="text-teal-600 font-medium hover:underline mt-2 inline-block">
+                            <div className="col-span-full text-center py-12 bg-gray-50 dark:bg-gray-800 rounded-xl border-2 border-dashed border-gray-200 dark:border-gray-700">
+                                <p className="text-gray-500 dark:text-gray-400">No clinics added yet.</p>
+                                <Link to="/clinics/add" className="text-teal-600 dark:text-teal-400 font-medium hover:underline mt-2 inline-block">
                                     Add your first clinic
                                 </Link>
                             </div>
                         )}
                     </div>
                 ) : (
-                    <div className="h-full rounded-xl overflow-hidden border border-gray-200 shadow-sm">
+                    <div className="h-full rounded-xl overflow-hidden border border-gray-200 dark:border-gray-700 shadow-sm">
                         <Map markers={markers} center={center} />
                     </div>
                 )}
