@@ -1,5 +1,7 @@
 @import "tailwindcss";
 
+@custom-variant dark (&:where(.dark, .dark *));
+
 html,
 body,
 #root {
@@ -8,4 +10,14 @@ body,
     padding: 0;
     overflow: hidden;
     /* Prevent body scroll, handle in main */
+}
+
+/* Dark mode base styles */
+.dark {
+    color-scheme: dark;
+}
+
+.dark body {
+    background-color: #111827;
+    color: #f9fafb;
 }
