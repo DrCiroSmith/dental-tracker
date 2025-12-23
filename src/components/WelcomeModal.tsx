@@ -1,17 +1,14 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { CheckCircle2, ArrowRight } from 'lucide-react';
 import clsx from 'clsx';
 
 export default function WelcomeModal() {
-    const [isOpen, setIsOpen] = useState(false);
-    const [step, setStep] = useState(0);
-
-    useEffect(() => {
+    // Initialize state based on localStorage value directly
+    const [isOpen, setIsOpen] = useState(() => {
         const hasSeenWelcome = localStorage.getItem('hasSeenWelcome');
-        if (!hasSeenWelcome) {
-            setIsOpen(true);
-        }
-    }, []);
+        return !hasSeenWelcome;
+    });
+    const [step, setStep] = useState(0);
 
     const handleClose = () => {
         localStorage.setItem('hasSeenWelcome', 'true');

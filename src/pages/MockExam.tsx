@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { examQuestions, examCategories, type ExamQuestion } from '../data/examQuestions';
 import { CheckCircle2, XCircle, ChevronLeft, ChevronRight, Trophy, RotateCcw, Settings2, Play, Clock, BookOpen } from 'lucide-react';
 import clsx from 'clsx';
@@ -29,26 +29,60 @@ export default function MockExam() {
     const [userAnswers, setUserAnswers] = useState<UserAnswer[]>([]);
     const [showExplanation, setShowExplanation] = useState(false);
     const [timeRemaining, setTimeRemaining] = useState<number | null>(null);
+    const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+    const modeRef = useRef(mode);
 
-    // Timer effect
+    // Keep modeRef in sync with mode
     useEffect(() => {
-        if (mode !== 'exam' || timeRemaining === null) return;
+        modeRef.current = mode;
+    }, [mode]);
 
-        if (timeRemaining <= 0) {
-            handleFinishExam();
-            return;
+    // Define handleFinishExam with useCallback to avoid dependency issues
+    const handleFinishExam = useCallback(() => {
+        if (timerRef.current) {
+            clearInterval(timerRef.current);
+            timerRef.current = null;
         }
+        setMode('results');
+    }, []);
 
-        const timer = setInterval(() => {
-            setTimeRemaining(prev => (prev !== null ? prev - 1 : null));
+    // Timer effect - only handles the interval
+    const hasTimeLimit = timeRemaining !== null;
+    useEffect(() => {
+        if (mode !== 'exam' || !hasTimeLimit || timeRemaining === null || timeRemaining <= 0) return;
+
+        timerRef.current = setInterval(() => {
+            setTimeRemaining(prev => {
+                if (prev === null || prev <= 1) {
+                    // Clear interval when time runs out
+                    if (timerRef.current) {
+                        clearInterval(timerRef.current);
+                        timerRef.current = null;
+                    }
+                    // Defer the mode change to avoid setState in effect
+                    setTimeout(() => {
+                        if (modeRef.current === 'exam') {
+                            setMode('results');
+                        }
+                    }, 0);
+                    return 0;
+                }
+                return prev - 1;
+            });
         }, 1000);
 
-        return () => clearInterval(timer);
-    }, [mode, timeRemaining]);
+        return () => {
+            if (timerRef.current) {
+                clearInterval(timerRef.current);
+                timerRef.current = null;
+            }
+        };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [mode, hasTimeLimit]);
 
     const handleStartExam = () => {
         // Filter questions by selected categories
-        let filteredQuestions = examQuestions.filter(q => 
+        const filteredQuestions = examQuestions.filter(q => 
             settings.categories.includes(q.category)
         );
 
@@ -92,10 +126,6 @@ export default function MockExam() {
             setCurrentIndex(currentIndex - 1);
             setShowExplanation(userAnswers[currentIndex - 1].selectedAnswer !== null);
         }
-    };
-
-    const handleFinishExam = () => {
-        setMode('results');
     };
 
     const handleRestartExam = () => {

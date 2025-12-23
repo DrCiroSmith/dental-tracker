@@ -215,7 +215,7 @@ export default function LogHours() {
                     <select
                         className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
                         value={formData.type}
-                        onChange={e => setFormData({ ...formData, type: e.target.value as any })}
+                        onChange={e => setFormData({ ...formData, type: e.target.value as typeof formData.type })}
                     >
                         <option value="Shadowing">Dental Shadowing</option>
                         <option value="Dental Volunteering">Dental Volunteering</option>

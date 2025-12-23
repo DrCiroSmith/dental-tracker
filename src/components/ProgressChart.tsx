@@ -42,9 +42,11 @@ export default function ProgressChart({ data, variant, title = "Weekly Progress"
                             left: -20,
                             bottom: 0,
                         }}
-                        onClick={(data: any) => {
-                            if (data && data.activePayload && data.activePayload.length > 0) {
-                                const date = data.activePayload[0].payload.date;
+                        onClick={(data) => {
+                            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                            const chartData = data as any;
+                            if (chartData && chartData.activePayload && chartData.activePayload.length > 0) {
+                                const date = chartData.activePayload[0].payload.date;
                                 onBarClick?.(date);
                             }
                         }}
@@ -71,6 +73,7 @@ export default function ProgressChart({ data, variant, title = "Weekly Progress"
                                     return (
                                         <div className="bg-white dark:bg-gray-800 p-3 border border-gray-200 dark:border-gray-700 shadow-lg rounded-lg text-sm">
                                             <p className="font-medium text-gray-900 dark:text-gray-100 mb-2">{label}</p>
+                                            {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
                                             {payload.map((entry: any) => (
                                                 <div key={entry.name} className="flex items-center justify-between gap-4 mb-1 last:mb-0">
                                                     <div className="flex items-center gap-2">
@@ -87,6 +90,7 @@ export default function ProgressChart({ data, variant, title = "Weekly Progress"
                                                 <div className="mt-2 pt-2 border-t border-gray-100 dark:border-gray-700 flex justify-between gap-4 font-medium">
                                                     <span className="text-gray-900 dark:text-gray-100">Total</span>
                                                     <span className="text-teal-600 dark:text-teal-400">
+                                                        {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
                                                         {payload.reduce((acc: number, curr: any) => acc + (Number(curr.value) || 0), 0)}h
                                                     </span>
                                                 </div>

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { db, type Profile } from '../lib/db';
 import { Download, Upload, AlertTriangle, CheckCircle2, User, CreditCard, Shield, Trash2, UserCog, LogOut } from 'lucide-react';
 import { saveAs } from 'file-saver';
@@ -17,23 +17,25 @@ function ProfileSettings() {
         return undefined;
     }, [user?.id]);
     const [isEditing, setIsEditing] = useState(false);
-    const [formData, setFormData] = useState({
-        name: '',
-        targetHoursShadowing: 100,
-        targetHoursDental: 100,
-        targetHoursNonDental: 150
-    });
-
+    
+    // Derive initial form data from profile using useMemo
+    const initialFormData = useMemo(() => ({
+        name: profile?.name || '',
+        targetHoursShadowing: profile?.targetHoursShadowing || 100,
+        targetHoursDental: profile?.targetHoursDental || 100,
+        targetHoursNonDental: profile?.targetHoursNonDental || 150
+    }), [profile]);
+    
+    const [formData, setFormData] = useState(initialFormData);
+    
+    // Sync form data when profile changes (only when not editing)
+    const profileVersion = profile ? `${profile.name}-${profile.targetHoursShadowing}-${profile.targetHoursDental}-${profile.targetHoursNonDental}` : '';
     useEffect(() => {
-        if (profile) {
-            setFormData({
-                name: profile.name,
-                targetHoursShadowing: profile.targetHoursShadowing || 100,
-                targetHoursDental: profile.targetHoursDental || 100,
-                targetHoursNonDental: profile.targetHoursNonDental || 150
-            });
+        if (!isEditing && profile) {
+            setFormData(initialFormData);
         }
-    }, [profile]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [profileVersion, isEditing]);
 
     useEffect(() => {
         if (location.hash === '#subscription') {
