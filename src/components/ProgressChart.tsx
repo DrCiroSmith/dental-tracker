@@ -26,10 +26,10 @@ const COLORS = {
 
 export default function ProgressChart({ data, variant, title = "Weekly Progress", subtitle = "Last 7 Days", activityType, onBarClick }: ProgressChartProps) {
     return (
-        <div className="h-[350px] w-full bg-white dark:bg-gray-800 p-4 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 flex flex-col">
+        <div className="h-[350px] w-full bg-white p-4 rounded-xl shadow-sm border border-gray-200 flex flex-col">
             <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">{title}</h3>
-                <div className="text-sm text-gray-500 dark:text-gray-400">{subtitle}</div>
+                <h3 className="text-lg font-semibold text-gray-900">{title}</h3>
+                <div className="text-sm text-gray-500">{subtitle}</div>
             </div>
 
             <div className="flex-1 min-h-0">
@@ -42,38 +42,33 @@ export default function ProgressChart({ data, variant, title = "Weekly Progress"
                             left: -20,
                             bottom: 0,
                         }}
-                        onClick={(data) => {
-                            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                            const chartData = data as any;
-                            if (chartData && chartData.activePayload && chartData.activePayload.length > 0) {
-                                const date = chartData.activePayload[0].payload.date;
+                        onClick={(data: any) => {
+                            if (data && data.activePayload && data.activePayload.length > 0) {
+                                const date = data.activePayload[0].payload.date;
                                 onBarClick?.(date);
                             }
                         }}
                     >
-                        <CartesianGrid strokeDasharray="3 3" vertical={false} className="stroke-gray-200 dark:stroke-gray-700" />
+                        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f3f4f6" />
                         <XAxis
                             dataKey="name"
                             axisLine={false}
                             tickLine={false}
-                            className="fill-gray-500 dark:fill-gray-400"
-                            tick={{ fontSize: 12 }}
+                            tick={{ fill: '#6b7280', fontSize: 12 }}
                             dy={10}
                         />
                         <YAxis
                             axisLine={false}
                             tickLine={false}
-                            className="fill-gray-500 dark:fill-gray-400"
-                            tick={{ fontSize: 12 }}
+                            tick={{ fill: '#6b7280', fontSize: 12 }}
                         />
                         <Tooltip
-                            cursor={{ fill: 'rgba(156, 163, 175, 0.1)' }}
+                            cursor={{ fill: '#f9fafb' }}
                             content={({ active, payload, label }) => {
                                 if (active && payload && payload.length) {
                                     return (
-                                        <div className="bg-white dark:bg-gray-800 p-3 border border-gray-200 dark:border-gray-700 shadow-lg rounded-lg text-sm">
-                                            <p className="font-medium text-gray-900 dark:text-gray-100 mb-2">{label}</p>
-                                            {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
+                                        <div className="bg-white p-3 border border-gray-200 shadow-lg rounded-lg text-sm">
+                                            <p className="font-medium text-gray-900 mb-2">{label}</p>
                                             {payload.map((entry: any) => (
                                                 <div key={entry.name} className="flex items-center justify-between gap-4 mb-1 last:mb-0">
                                                     <div className="flex items-center gap-2">
@@ -81,16 +76,15 @@ export default function ProgressChart({ data, variant, title = "Weekly Progress"
                                                             className="w-2 h-2 rounded-full"
                                                             style={{ backgroundColor: entry.color }}
                                                         />
-                                                        <span className="text-gray-600 dark:text-gray-400">{entry.name}</span>
+                                                        <span className="text-gray-600">{entry.name}</span>
                                                     </div>
-                                                    <span className="font-medium text-gray-900 dark:text-gray-100">{entry.value}h</span>
+                                                    <span className="font-medium text-gray-900">{entry.value}h</span>
                                                 </div>
                                             ))}
                                             {variant === 'stacked' && (
-                                                <div className="mt-2 pt-2 border-t border-gray-100 dark:border-gray-700 flex justify-between gap-4 font-medium">
-                                                    <span className="text-gray-900 dark:text-gray-100">Total</span>
-                                                    <span className="text-teal-600 dark:text-teal-400">
-                                                        {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
+                                                <div className="mt-2 pt-2 border-t border-gray-100 flex justify-between gap-4 font-medium">
+                                                    <span className="text-gray-900">Total</span>
+                                                    <span className="text-teal-600">
                                                         {payload.reduce((acc: number, curr: any) => acc + (Number(curr.value) || 0), 0)}h
                                                     </span>
                                                 </div>

@@ -1,12 +1,11 @@
 import { describe, it, expect, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import ProgressChart from './ProgressChart';
-import type { ReactNode } from 'react';
 
 // Mock Recharts to avoid rendering complex SVG in JSDOM
 vi.mock('recharts', () => {
-    const ResponsiveContainer = ({ children }: { children: ReactNode }) => <div>{children}</div>;
-    const BarChart = ({ children }: { children: ReactNode }) => <div data-testid="bar-chart">{children}</div>;
+    const ResponsiveContainer = ({ children }: { children: any }) => <div>{children}</div>;
+    const BarChart = ({ children }: { children: any }) => <div data-testid="bar-chart">{children}</div>;
     const Bar = () => <div data-testid="bar" />;
     const XAxis = () => <div data-testid="x-axis" />;
     const YAxis = () => <div data-testid="y-axis" />;

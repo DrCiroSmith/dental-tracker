@@ -116,7 +116,7 @@ export default function Dashboard() {
 
             // Create weeks from first log date to today
             const weeks = [];
-            const currentStart = new Date(firstLogDate);
+            let currentStart = new Date(firstLogDate);
 
             let weekCount = 1;
             while (currentStart <= today) {
@@ -223,26 +223,26 @@ export default function Dashboard() {
             />
 
             {/* Header & Progress */}
-            <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700">
+            <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
                     <div>
-                        <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+                        <h2 className="text-2xl font-bold text-gray-900">
                             {stats.profile?.name ? `Hi ${stats.profile.name}!` : 'Dashboard'}
                         </h2>
-                        <p className="text-gray-500 dark:text-gray-400">
+                        <p className="text-gray-500">
                             Track your progress towards dental school admission.
                         </p>
                     </div>
                     <div className="text-right">
-                        <div className={clsx("text-3xl font-bold", stats.totalHours >= ((stats.profile?.targetHoursShadowing || 100) + (stats.profile?.targetHoursDental || 100) + (stats.profile?.targetHoursNonDental || 150)) ? "text-green-600 dark:text-green-400" : "text-teal-600 dark:text-teal-400")}>
-                            {stats.totalHours} <span className="text-lg text-gray-400 dark:text-gray-500 font-normal">/ {(stats.profile?.targetHoursShadowing || 100) + (stats.profile?.targetHoursDental || 100) + (stats.profile?.targetHoursNonDental || 150)} hrs</span>
+                        <div className={clsx("text-3xl font-bold", stats.totalHours >= ((stats.profile?.targetHoursShadowing || 100) + (stats.profile?.targetHoursDental || 100) + (stats.profile?.targetHoursNonDental || 150)) ? "text-green-600" : "text-teal-600")}>
+                            {stats.totalHours} <span className="text-lg text-gray-400 font-normal">/ {(stats.profile?.targetHoursShadowing || 100) + (stats.profile?.targetHoursDental || 100) + (stats.profile?.targetHoursNonDental || 150)} hrs</span>
                         </div>
-                        <div className="text-sm text-gray-500 dark:text-gray-400">Total Hours Logged</div>
+                        <div className="text-sm text-gray-500">Total Hours Logged</div>
                     </div>
                 </div>
 
                 {/* Progress Bar */}
-                <div className="w-full bg-gray-100 dark:bg-gray-700 rounded-full h-4 overflow-hidden">
+                <div className="w-full bg-gray-100 rounded-full h-4 overflow-hidden">
                     <div
                         className={clsx("h-full rounded-full transition-all duration-1000 ease-out", stats.progress >= 100 ? "bg-green-500" : "bg-teal-500")}
                         style={{ width: `${stats.progress}%` }}
@@ -257,7 +257,7 @@ export default function Dashboard() {
                         onClick={() => setChartView('weekly')}
                         className={clsx(
                             "px-3 py-1.5 text-sm font-medium rounded-lg flex items-center gap-2 transition-colors",
-                            chartView === 'weekly' ? "bg-teal-100 dark:bg-teal-900/50 text-teal-700 dark:text-teal-300" : "bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 border border-gray-200 dark:border-gray-600"
+                            chartView === 'weekly' ? "bg-teal-100 text-teal-700" : "bg-white text-gray-600 hover:bg-gray-50 border border-gray-200"
                         )}
                     >
                         <Calendar className="w-4 h-4" />
@@ -274,10 +274,10 @@ export default function Dashboard() {
                         className={clsx(
                             "px-3 py-1.5 text-sm font-medium rounded-lg flex items-center gap-2 transition-colors",
                             chartView === 'monthly'
-                                ? "bg-teal-100 dark:bg-teal-900/50 text-teal-700 dark:text-teal-300"
+                                ? "bg-teal-100 text-teal-700"
                                 : !isSubscribed
-                                    ? "bg-amber-100 dark:bg-amber-900/50 text-amber-800 dark:text-amber-300 hover:bg-amber-200 dark:hover:bg-amber-900/70"
-                                    : "bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 border border-gray-200 dark:border-gray-600"
+                                    ? "bg-amber-100 text-amber-800 hover:bg-amber-200"
+                                    : "bg-white text-gray-600 hover:bg-gray-50 border border-gray-200"
                         )}
                     >
                         {!isSubscribed ? <Lock className="w-3 h-3" /> : <BarChart3 className="w-4 h-4" />}
@@ -294,10 +294,10 @@ export default function Dashboard() {
                         className={clsx(
                             "px-3 py-1.5 text-sm font-medium rounded-lg flex items-center gap-2 transition-colors",
                             chartView === 'full'
-                                ? "bg-teal-100 dark:bg-teal-900/50 text-teal-700 dark:text-teal-300"
+                                ? "bg-teal-100 text-teal-700"
                                 : !isSubscribed
-                                    ? "bg-amber-100 dark:bg-amber-900/50 text-amber-800 dark:text-amber-300 hover:bg-amber-200 dark:hover:bg-amber-900/70"
-                                    : "bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 border border-gray-200 dark:border-gray-600"
+                                    ? "bg-amber-100 text-amber-800 hover:bg-amber-200"
+                                    : "bg-white text-gray-600 hover:bg-gray-50 border border-gray-200"
                         )}
                     >
                         {!isSubscribed ? <Lock className="w-3 h-3" /> : <TrendingUp className="w-4 h-4" />}
@@ -323,19 +323,19 @@ export default function Dashboard() {
                             to={card.link}
                             className={clsx(
                                 "p-6 rounded-xl shadow-sm border transition-shadow group",
-                                isCompleted ? "bg-green-50 dark:bg-green-900/30 border-green-200 dark:border-green-800 hover:shadow-md" : "bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 hover:shadow-md"
+                                isCompleted ? "bg-green-50 border-green-200 hover:shadow-md" : "bg-white border-gray-200 hover:shadow-md"
                             )}
                         >
                             <div className="flex items-start justify-between mb-4">
-                                <div className={clsx("p-3 rounded-lg", isCompleted ? "bg-green-100 dark:bg-green-800/50 text-green-700 dark:text-green-300" : card.color + " dark:bg-opacity-20")}>
+                                <div className={clsx("p-3 rounded-lg", isCompleted ? "bg-green-100 text-green-700" : card.color)}>
                                     <card.icon className="w-6 h-6" />
                                 </div>
-                                <ChevronRight className={clsx("w-5 h-5 transition-colors", isCompleted ? "text-green-400 group-hover:text-green-600" : "text-gray-300 dark:text-gray-600 group-hover:text-gray-500 dark:group-hover:text-gray-400")} />
+                                <ChevronRight className={clsx("w-5 h-5 transition-colors", isCompleted ? "text-green-400 group-hover:text-green-600" : "text-gray-300 group-hover:text-gray-500")} />
                             </div>
-                            <h3 className={clsx("font-medium text-sm", isCompleted ? "text-green-800 dark:text-green-300" : "text-gray-500 dark:text-gray-400")}>{card.title}</h3>
+                            <h3 className={clsx("font-medium text-sm", isCompleted ? "text-green-800" : "text-gray-500")}>{card.title}</h3>
                             <div className="flex items-baseline gap-2 mt-1">
-                                <span className={clsx("text-2xl font-bold", isCompleted ? "text-green-900 dark:text-green-200" : "text-gray-900 dark:text-gray-100")}>{card.hours}</span>
-                                <span className={clsx("text-sm", isCompleted ? "text-green-600 dark:text-green-400" : "text-gray-400 dark:text-gray-500")}>/ {card.target} hrs</span>
+                                <span className={clsx("text-2xl font-bold", isCompleted ? "text-green-900" : "text-gray-900")}>{card.hours}</span>
+                                <span className={clsx("text-sm", isCompleted ? "text-green-600" : "text-gray-400")}>/ {card.target} hrs</span>
                             </div>
                         </Link>
                     );
@@ -344,29 +344,29 @@ export default function Dashboard() {
 
             {/* Clinic Stats */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <Link to="/clinics" className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 hover:shadow-md transition-shadow group">
+                <Link to="/clinics" className="bg-white p-6 rounded-xl shadow-sm border border-gray-200 hover:shadow-md transition-shadow group">
                     <div className="flex items-center gap-4">
-                        <div className="p-3 bg-teal-50 dark:bg-teal-900/30 text-teal-700 dark:text-teal-400 rounded-lg">
+                        <div className="p-3 bg-teal-50 text-teal-700 rounded-lg">
                             <Building2 className="w-6 h-6" />
                         </div>
                         <div>
-                            <p className="text-sm text-gray-500 dark:text-gray-400">Clinics Tracked</p>
-                            <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{stats.totalClinics}</p>
+                            <p className="text-sm text-gray-500">Clinics Tracked</p>
+                            <p className="text-2xl font-bold text-gray-900">{stats.totalClinics}</p>
                         </div>
-                        <ChevronRight className="w-5 h-5 text-gray-300 dark:text-gray-600 ml-auto group-hover:text-gray-500 dark:group-hover:text-gray-400 transition-colors" />
+                        <ChevronRight className="w-5 h-5 text-gray-300 ml-auto group-hover:text-gray-500 transition-colors" />
                     </div>
                 </Link>
 
-                <Link to="/clinics?filter=active" className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 hover:shadow-md transition-shadow group">
+                <Link to="/clinics?filter=active" className="bg-white p-6 rounded-xl shadow-sm border border-gray-200 hover:shadow-md transition-shadow group">
                     <div className="flex items-center gap-4">
-                        <div className="p-3 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-400 rounded-lg">
+                        <div className="p-3 bg-indigo-50 text-indigo-700 rounded-lg">
                             <Filter className="w-6 h-6" />
                         </div>
                         <div>
-                            <p className="text-sm text-gray-500 dark:text-gray-400">Active Engagement</p>
-                            <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{stats.activeClinics}</p>
+                            <p className="text-sm text-gray-500">Active Engagement</p>
+                            <p className="text-2xl font-bold text-gray-900">{stats.activeClinics}</p>
                         </div>
-                        <ChevronRight className="w-5 h-5 text-gray-300 dark:text-gray-600 ml-auto group-hover:text-gray-500 dark:group-hover:text-gray-400 transition-colors" />
+                        <ChevronRight className="w-5 h-5 text-gray-300 ml-auto group-hover:text-gray-500 transition-colors" />
                     </div>
                 </Link>
             </div>
