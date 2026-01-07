@@ -22,7 +22,7 @@ export default function ActivityLogs() {
         const clinics = await db.clinics.toArray();
         const clinicsMap = new Map(clinics.map(c => [c.id, c.name]));
 
-        const collection = db.logs.orderBy('date').reverse();
+        let collection = db.logs.orderBy('date').reverse();
         let logs = await collection.toArray();
 
         // Calculate weekly data for chart BEFORE filtering logs for the table
@@ -119,13 +119,13 @@ export default function ActivityLogs() {
     return (
         <div className="space-y-6">
             <div className="flex items-center gap-4">
-                <button onClick={() => navigate('/')} className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full">
-                    <ArrowLeft className="w-6 h-6 text-gray-600 dark:text-gray-400" />
+                <button onClick={() => navigate('/')} className="p-2 hover:bg-gray-100 rounded-full">
+                    <ArrowLeft className="w-6 h-6 text-gray-600" />
                 </button>
-                <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Activity Logs</h1>
+                <h1 className="text-2xl font-bold text-gray-900">Activity Logs</h1>
             </div>
 
-            <div className="flex flex-col md:flex-row gap-4 justify-between items-start md:items-center bg-white dark:bg-gray-800 p-4 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700">
+            <div className="flex flex-col md:flex-row gap-4 justify-between items-start md:items-center bg-white p-4 rounded-xl shadow-sm border border-gray-200">
                 <LogFilters
                     currentFilter={typeFilter}
                     onFilterChange={(type) => setSearchParams({ type })}
@@ -146,7 +146,7 @@ export default function ActivityLogs() {
                 />
             )}
 
-            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
+            <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
                 <LogTable logs={logs} onDelete={handleDelete} />
             </div>
         </div>
