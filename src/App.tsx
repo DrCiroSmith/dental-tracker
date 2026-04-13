@@ -10,7 +10,9 @@ import Settings from './pages/Settings';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import AdmissionsGuide from './pages/AdmissionsGuide';
+import MockExam from './pages/MockExam';
 import { AuthProvider, useAuth } from './context/AuthContext';
+import { ThemeProvider } from './context/ThemeContext';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import WelcomeModal from './components/WelcomeModal';
 import LandingPage from './pages/LandingPage';
@@ -39,8 +41,8 @@ function App() {
     <ErrorBoundary>
       <AuthProvider>
         <Router>
+          <WelcomeModal />
           <Routes>
-            <Route path="/landing" element={<LandingPage />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
             <Route path="/" element={

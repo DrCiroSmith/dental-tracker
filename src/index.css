@@ -1,22 +1,6 @@
 @import url('https://fonts.googleapis.com/css2?family=Figtree:wght@300;400;500;600;700&display=swap');
 @import "tailwindcss";
 
-@keyframes fade-in-up {
-    0% {
-        opacity: 0;
-        transform: translateY(20px);
-    }
-
-    100% {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-.animate-fade-in-up {
-    animation: fade-in-up 0.8s ease-out forwards;
-}
-
 html,
 body,
 #root {
@@ -25,4 +9,14 @@ body,
     padding: 0;
     overflow: hidden;
     /* Prevent body scroll, handle in main */
+}
+
+/* Dark mode base styles */
+.dark {
+    color-scheme: dark;
+}
+
+.dark body {
+    background-color: #111827;
+    color: #f9fafb;
 }
