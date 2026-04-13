@@ -9,6 +9,7 @@ export default function WelcomeModal() {
     useEffect(() => {
         const hasSeenWelcome = localStorage.getItem('hasSeenWelcome');
         if (!hasSeenWelcome) {
+            // eslint-disable-next-line
             setIsOpen(true);
         }
     }, []);

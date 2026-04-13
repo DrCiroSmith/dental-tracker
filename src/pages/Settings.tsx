@@ -25,7 +25,8 @@ function ProfileSettings() {
     });
 
     useEffect(() => {
-        if (profile) {
+        if (profile && !isEditing) {
+            // eslint-disable-next-line
             setFormData({
                 name: profile.name,
                 targetHoursShadowing: profile.targetHoursShadowing || 100,
@@ -33,7 +34,7 @@ function ProfileSettings() {
                 targetHoursNonDental: profile.targetHoursNonDental || 150
             });
         }
-    }, [profile]);
+    }, [profile, isEditing]);
 
     useEffect(() => {
         if (location.hash === '#subscription') {

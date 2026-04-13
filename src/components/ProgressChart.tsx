@@ -42,7 +42,7 @@ export default function ProgressChart({ data, variant, title = "Weekly Progress"
                             left: -20,
                             bottom: 0,
                         }}
-                        onClick={(data: any) => {
+                        onClick={(data: any) => { // eslint-disable-line @typescript-eslint/no-explicit-any
                             if (data && data.activePayload && data.activePayload.length > 0) {
                                 const date = data.activePayload[0].payload.date;
                                 onBarClick?.(date);
@@ -69,7 +69,7 @@ export default function ProgressChart({ data, variant, title = "Weekly Progress"
                                     return (
                                         <div className="bg-white p-3 border border-gray-200 shadow-lg rounded-lg text-sm">
                                             <p className="font-medium text-gray-900 mb-2">{label}</p>
-                                            {payload.map((entry: any) => (
+                                            {payload.map((entry: any) => ( // eslint-disable-line @typescript-eslint/no-explicit-any
                                                 <div key={entry.name} className="flex items-center justify-between gap-4 mb-1 last:mb-0">
                                                     <div className="flex items-center gap-2">
                                                         <div
@@ -85,7 +85,7 @@ export default function ProgressChart({ data, variant, title = "Weekly Progress"
                                                 <div className="mt-2 pt-2 border-t border-gray-100 flex justify-between gap-4 font-medium">
                                                     <span className="text-gray-900">Total</span>
                                                     <span className="text-teal-600">
-                                                        {payload.reduce((acc: number, curr: any) => acc + (Number(curr.value) || 0), 0)}h
+                                                        {payload.reduce((acc: number, curr: any) => acc + (Number(curr.value) || 0), 0)}h {/* eslint-disable-line @typescript-eslint/no-explicit-any */}
                                                     </span>
                                                 </div>
                                             )}

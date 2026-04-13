@@ -116,7 +116,7 @@ export default function Dashboard() {
 
             // Create weeks from first log date to today
             const weeks = [];
-            let currentStart = new Date(firstLogDate);
+            const currentStart = new Date(firstLogDate);
 
             let weekCount = 1;
             while (currentStart <= today) {

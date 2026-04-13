@@ -13,6 +13,7 @@ import AdmissionsGuide from './pages/AdmissionsGuide';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import WelcomeModal from './components/WelcomeModal';
+import LandingPage from './pages/LandingPage';
 
 function ProtectedRoute({ children }: { children: React.ReactElement }) {
   const { user, loading } = useAuth();
@@ -22,10 +23,15 @@ function ProtectedRoute({ children }: { children: React.ReactElement }) {
   }
 
   if (!user) {
-    return <Navigate to="/login" />;
+    return <Navigate to="/landing" />;
   }
 
-  return children;
+  return (
+    <>
+      <WelcomeModal />
+      {children}
+    </>
+  );
 }
 
 function App() {
@@ -33,8 +39,8 @@ function App() {
     <ErrorBoundary>
       <AuthProvider>
         <Router>
-          <WelcomeModal />
           <Routes>
+            <Route path="/landing" element={<LandingPage />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
             <Route path="/" element={

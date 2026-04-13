@@ -22,7 +22,7 @@ export default function ActivityLogs() {
         const clinics = await db.clinics.toArray();
         const clinicsMap = new Map(clinics.map(c => [c.id, c.name]));
 
-        let collection = db.logs.orderBy('date').reverse();
+        const collection = db.logs.orderBy('date').reverse();
         let logs = await collection.toArray();
 
         // Calculate weekly data for chart BEFORE filtering logs for the table

@@ -24,7 +24,7 @@ export default function Clinics() {
     const filter = searchParams.get('filter');
 
     const clinics = useLiveQuery(async () => {
-        let allClinics = await db.clinics.toArray();
+        const allClinics = await db.clinics.toArray();
         if (filter === 'active') {
             return allClinics.filter(c => ['Contacted', 'Applied', 'Interview Scheduled', 'Accepted', 'Waitlisted'].includes(c.status));
         }
